@@ -8,6 +8,8 @@ import Providers from '@/Providers/Providers';
 import LandingPage from '@/pages/LandingPage/Landing.page';
 import pages from './pages';
 import MailLayout from '@/layouts/Mail.layout';
+import AppLayout from '@/layouts/App.layout';
+import AppRoutes from '@/Routes/agent1o1Pages/appRoutes';
 import Page404Page from '@/pages/Page404.page';
 import UnderConstructionPage from '@/pages/UnderConstruction.page';
 import DocumentationPages from '@/Routes/infoPages/documentationPages';
@@ -233,6 +235,15 @@ const router = createBrowserRouter([
 										],
 									},
 								],
+							},
+						],
+					},
+					{
+						element: <Protected role='admin' />,
+						children: [
+							{
+								element: <AppLayout />,
+								children: [...AppRoutes],
 							},
 						],
 					},

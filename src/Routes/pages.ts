@@ -1156,5 +1156,104 @@ const documentation = {
 	},
 };
 
-const pages = { apps, pagesExamples, documentation, examples };
+const app = {
+	appMain: {
+		id: 'appMain',
+		to: '/app',
+		text: 'App',
+		icon: 'Home09',
+		subPages: {
+			workflows: {
+				id: 'workflows',
+				to: '/app/workflows',
+				text: 'Workflows',
+				icon: 'Key02',
+			},
+			credentials: {
+				id: 'credentials',
+				to: '/app/credentials',
+				text: 'Credentials',
+				icon: 'Key02',
+			},
+			oauthCallback: {
+				id: 'oauthCallback',
+				to: '/app/oauth/callback',
+				text: 'OAuth Callback',
+				icon: 'Link01',
+			},
+			executions: {
+				id: 'executions',
+				to: '/app/executions',
+				text: 'Executions',
+				icon: 'PlayCircle',
+			},
+			variables: {
+				id: 'variables',
+				to: '/app/variables',
+				text: 'Variables',
+				icon: 'Key02',
+			},
+			templates: {
+				id: 'templates',
+				to: '/app/templates',
+				text: 'Templates',
+				icon: 'LayoutGrid',
+			},
+			settings: {
+				id: 'settings',
+				to: '/app/settings',
+				text: 'Settings',
+				icon: 'Settings02',
+				subPages: {
+					general: {
+						id: 'general',
+						to: '/app/settings/general',
+						text: 'General',
+						icon: 'Settings02',
+					},
+					profile: {
+						id: 'profile',
+						to: '/app/settings/profile',
+						text: 'Profile',
+						icon: 'User02',
+					},
+					workspaces: {
+						id: 'workspaces',
+						to: '/app/settings/workspaces',
+						text: 'Workspaces',
+						icon: 'DashboardSquare03',
+					},
+					teams: {
+						id: 'teams',
+						to: '/app/settings/teams',
+						text: 'Teams',
+						icon: 'UserMultiple',
+					},
+				},
+			},
+			editor: {
+				id: 'editor',
+				to: '/app/editor',
+				text: 'Editor',
+				icon: 'Key02',
+				subPages: {
+					flowEditor: {
+						id: 'flowEditor',
+						to: '/app/editor/:id',
+						text: 'Flow Editor',
+						icon: 'Key02',
+					},
+					storyBuilder: {
+						id: 'storyBuilder',
+						to: '/app/story-builder/:id',
+						text: 'Story Builder',
+						icon: 'BookOpen01',
+					},
+				},
+			},
+		},
+	},
+};
+
+const pages = { apps, pagesExamples, documentation, examples, app };
 export default pages;
