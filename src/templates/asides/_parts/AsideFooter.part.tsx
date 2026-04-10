@@ -28,7 +28,7 @@ const AsideFooterPart = () => {
 	const { i18n } = useTranslation();
 	const { setLanguage } = useContext(ThemeContext);
 
-	const { userData, tokenStorage } = useAuth();
+	const { userData, isAuthenticated } = useAuth();
 
 	const langArray = Object.values(LANG);
 	const activeLang = langArray.filter((key) => key.lng === i18n.language)[0];
@@ -175,16 +175,15 @@ const AsideFooterPart = () => {
 				</div>
 			)}
 			<User
-				name={userData ? `${userData?.firstName} ${userData?.lastName}` : undefined}
-				position={userData?.role}
-				nameSuffix={userData?.isVerified && <Icon icon='CheckmarkBadge02' color='blue' />}
-				src={userData?.image.org}>
+				name={userData?.name}
+				nameSuffix={userData?.email_verified_at && <Icon icon='CheckmarkBadge02' color='blue' />}
+				src={userData?.avatar ?? undefined}>
 				<NavSeparator />
 
-				{tokenStorage && (
+				{isAuthenticated && (
 					<NavItem text='Logout' icon='Logout03' onClick={() => onLogout(true)} />
 				)}
-				{!tokenStorage && (
+				{!isAuthenticated && (
 					<NavItem
 						text='Log in'
 						icon='Login03'

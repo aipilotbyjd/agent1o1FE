@@ -1,19 +1,32 @@
-import { Navigate, Outlet } from 'react-router';
+import { Navigate, Outlet, useLocation } from 'react-router';
 import { useAuth } from '@/context/authContext';
 import { LogoDark } from '@/assets/images';
+import { hasValidToken } from '@/api/utils/token.manager';
 
-const Protected = ({ role: _role }: { role?: string }) => {
-	const { isAuthenticated, userData, isLoading } = useAuth();
+interface ProtectedProps {
+	role?: string;
+}
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const Protected = ({ role: _role }: ProtectedProps) => {
+	const { isLoading, isAuthenticated } = useAuth();
+	const location = useLocation();
+
+	// Check token validity
+	const hasToken = hasValidToken();
+
+	// Show loading state
 	if (isLoading) {
 		return (
 			<div className='flex h-full items-center justify-center'>
-				<img src={LogoDark} alt='' className='h-24' />
+				<img src={LogoDark} alt='Loading...' className='h-24 animate-pulse' />
 			</div>
 		);
 	}
-	if (!isAuthenticated || !userData) {
-		return <Navigate to='/login' />;
+
+	// Not authenticated - redirect to login with return URL
+	if (!hasToken || !isAuthenticated) {
+		return <Navigate to='/login' state={{ from: location }} replace />;
 	}
 
 	return <Outlet />;
