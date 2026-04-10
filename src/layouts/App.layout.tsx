@@ -1,16 +1,16 @@
 import { Outlet } from 'react-router';
 import { Suspense } from 'react';
 import Wrapper from '@/components/layout/Wrapper';
-import DefaultAsideTemplate from '@/templates/asides/DefaultAside.template';
 import Container from '@/components/layout/Container';
 import Skeleton from '@/components/ui/Skeleton';
 import Subheader, { SubheaderLeft, SubheaderRight } from '@/components/layout/Subheader';
 import Header, { HeaderLeft, HeaderRight } from '@/components/layout/Header';
-``
+import AppAsideTemplate from '@/templates/asides/AppAside.template';
+
 const AppLayout = () => {
 	return (
 		<>
-			<DefaultAsideTemplate />
+			<AppAsideTemplate />
 			<Wrapper>
 				<Suspense
 					fallback={
