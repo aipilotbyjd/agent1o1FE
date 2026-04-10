@@ -40,6 +40,14 @@ export const WorkflowEndpoints = {
 	DUPLICATE: (workspaceId: string, id: string) => `/workspaces/${workspaceId}/workflows/${id}/duplicate`,
 } as const;
 
+export const FolderEndpoints = {
+	LIST: (workspaceId: string) => `/workspaces/${workspaceId}/folders`,
+	CREATE: (workspaceId: string) => `/workspaces/${workspaceId}/folders`,
+	DETAIL: (workspaceId: string, id: string) => `/workspaces/${workspaceId}/folders/${id}`,
+	UPDATE: (workspaceId: string, id: string) => `/workspaces/${workspaceId}/folders/${id}`,
+	DELETE: (workspaceId: string, id: string) => `/workspaces/${workspaceId}/folders/${id}`,
+} as const;
+
 export const ExecutionEndpoints = {
 	LIST: (workspaceId: string) => `/workspaces/${workspaceId}/executions`,
 	DETAIL: (workspaceId: string, id: string) => `/workspaces/${workspaceId}/executions/${id}`,

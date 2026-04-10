@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeContextProvider } from '@/context/themeContext';
 import { AuthProvider } from '@/context/authContext';
+import { WorkspaceProvider } from '@/context/workspaceContext';
 
 const queryClient = new QueryClient({
 	defaultOptions: {
@@ -16,8 +17,10 @@ const Providers = () => {
 	return (
 		<QueryClientProvider client={queryClient}>
 			<ThemeContextProvider>
-				{/* <Outlet /> must be used in the innermost provider. */}
-				<AuthProvider />
+				<WorkspaceProvider>
+					{/* <Outlet /> must be used in the innermost provider. */}
+					<AuthProvider />
+				</WorkspaceProvider>
 			</ThemeContextProvider>
 		</QueryClientProvider>
 	);

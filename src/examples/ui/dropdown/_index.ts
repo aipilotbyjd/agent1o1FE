@@ -21,6 +21,7 @@ import DropdownTagExample from '@/examples/ui/dropdown/DropdownTag.example';
 import DropdownAvatarGroupExample from '@/examples/ui/dropdown/DropdownAvatarGroup.example';
 import DropdownProjectExample from '@/examples/ui/dropdown/DropdownProject.example';
 import DropdownAccountExample from '@/examples/ui/dropdown/DropdownAccount.example';
+import DropdownProjectsWorkspaceExample from '@/examples/ui/dropdown/DropdownProjectsWorkspace.example';
 import DropdownRangeExample from '@/examples/ui/dropdown/DropdownRange.example';
 
 const EX_Dropdown = {
@@ -47,6 +48,7 @@ const EX_Dropdown = {
 	Tag: DropdownTagExample,
 	AvatarGroup: DropdownAvatarGroupExample,
 	Project: DropdownProjectExample,
+	ProjectsWorkspace: DropdownProjectsWorkspaceExample,
 	Account: DropdownAccountExample,
 };
 export default EX_Dropdown;

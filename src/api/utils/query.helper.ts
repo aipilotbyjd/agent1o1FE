@@ -27,6 +27,13 @@ export const queryKeys = {
 		detail: (id: string) => ['workflows', 'detail', id] as const,
 	},
 
+	// Folders (scoped by workspace)
+	folders: {
+		all: (workspaceId: string) => ['folders', workspaceId] as const,
+		list: (workspaceId: string) => ['folders', workspaceId, 'list'] as const,
+		detail: (workspaceId: string, id: string) => ['folders', workspaceId, 'detail', id] as const,
+	},
+
 	// Executions (scoped by workspace)
 	executions: {
 		all: () => ['executions'] as const,
