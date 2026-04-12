@@ -37,7 +37,7 @@ export const AuthProvider = () => {
 		async (email: string, password: string, rememberMe: boolean) => {
 			const credentials: TLoginDto = { email, password };
 			await loginMutation.mutateAsync({ credentials, rememberMe });
-			navigate('/customer');
+			navigate('/app/workflows');
 		},
 		[loginMutation, navigate],
 	);
@@ -46,7 +46,7 @@ export const AuthProvider = () => {
 	const onRegister = useCallback(
 		async (data: TRegisterDto, rememberMe: boolean = false) => {
 			await registerMutation.mutateAsync({ credentials: data, rememberMe });
-			navigate('/customer');
+			navigate('/app/workflows');
 		},
 		[registerMutation, navigate],
 	);

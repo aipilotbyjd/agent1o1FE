@@ -66,10 +66,12 @@ axiosClient.interceptors.response.use(
 		if (error.response?.status === 401 && !originalRequest._retry) {
 			const currentToken = getAccessToken();
 
-			// No token at all, redirect to login
+			// No token at all, redirect to login (avoid loop if already there)
 			if (!currentToken) {
 				clearTokens();
-				window.location.href = '/login';
+				if (!window.location.pathname.includes('/login')) {
+					window.location.href = '/login';
+				}
 				return Promise.reject(error);
 			}
 
@@ -124,7 +126,9 @@ axiosClient.interceptors.response.use(
 			} catch (refreshError) {
 				processQueue(refreshError as Error, null);
 				clearTokens();
-				window.location.href = '/login';
+				if (!window.location.pathname.includes('/login')) {
+					window.location.href = '/login';
+				}
 				return Promise.reject(refreshError);
 			} finally {
 				isRefreshing = false;

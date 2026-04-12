@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { WorkspaceService } from '../services/workspace.service';
 import { queryKeys } from '../utils/query.helper';
+import { hasValidToken } from '../utils/token.manager';
 import type { TCreateWorkspaceDto, TUpdateWorkspaceDto } from '@/types/workspace.type';
 
 export const useFetchWorkspaces = () =>
@@ -9,6 +10,7 @@ export const useFetchWorkspaces = () =>
 		queryKey: queryKeys.workspaces.list(),
 		queryFn: WorkspaceService.fetchAll,
 		staleTime: 10 * 60 * 1000,
+		enabled: hasValidToken(),
 	});
 
 export const useFetchWorkspaceById = (id: string) =>
