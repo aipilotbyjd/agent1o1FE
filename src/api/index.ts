@@ -6,6 +6,11 @@ export {
 	WorkspaceEndpoints,
 	WorkflowEndpoints,
 	ExecutionEndpoints,
+	CredentialEndpoints,
+	VariableEndpoints,
+	TemplateEndpoints,
+	OAuthEndpoints,
+	DashboardEndpoints,
 } from './http';
 
 // ─── Services ────────────────────────────────────────────────
@@ -14,6 +19,10 @@ export { UserService } from './services';
 export { WorkspaceService } from './services';
 export { WorkflowService } from './services';
 export { ExecutionService } from './services';
+export { CredentialService } from './services';
+export { VariableService } from './services';
+export { TemplateService } from './services';
+export { DashboardService } from './services';
 
 // ─── Auth Hooks ──────────────────────────────────────────────
 export {
@@ -61,6 +70,48 @@ export {
 	useFetchExecutionLogs,
 	useCancelExecution,
 	useRetryExecution,
+} from './hooks';
+
+// ─── Credential Hooks ────────────────────────────────
+export {
+	useFetchCredentials,
+	useFetchCredential,
+	useCreateCredential,
+	useUpdateCredential,
+	useDeleteCredential,
+	useTestCredential,
+	useRefreshCredentialToken,
+	useShareCredential,
+	useUnshareCredential,
+	useUpdateSharingScope,
+	useFetchOAuthProviders,
+	useGetOAuthAuthorizeUrl,
+} from './hooks';
+
+// ─── Variable Hooks ──────────────────────────────────
+export {
+	useFetchVariables,
+	useFetchVariable,
+	useResolveVariable,
+	useCreateVariable,
+	useUpdateVariable,
+	useDeleteVariable,
+} from './hooks';
+
+// ─── Template Hooks ──────────────────────────────────
+export {
+	useFetchTemplates,
+	useFetchFeaturedTemplates,
+	useFetchTemplateCategories,
+	useFetchTemplate,
+	useTrackTemplateView,
+	useUseTemplate,
+} from './hooks';
+
+// ─── Dashboard Hooks ─────────────────────────────────
+export {
+	useFetchDashboard,
+	useFetchQuickStats,
 } from './hooks';
 
 // ─── Utils ───────────────────────────────────────────────────

@@ -54,4 +54,54 @@ export const ExecutionEndpoints = {
 	LOGS: (workspaceId: string, id: string) => `/workspaces/${workspaceId}/executions/${id}/logs`,
 	CANCEL: (workspaceId: string, id: string) => `/workspaces/${workspaceId}/executions/${id}/cancel`,
 	RETRY: (workspaceId: string, id: string) => `/workspaces/${workspaceId}/executions/${id}/retry`,
+	NODES: (workspaceId: string, id: string) => `/workspaces/${workspaceId}/executions/${id}/nodes`,
+	NODE_DETAIL: (workspaceId: string, id: string, nodeId: string) =>
+		`/workspaces/${workspaceId}/executions/${id}/nodes/${nodeId}`,
+	STATS: (workspaceId: string) => `/workspaces/${workspaceId}/executions/stats`,
+	BULK_DELETE: (workspaceId: string) => `/workspaces/${workspaceId}/executions/bulk`,
+} as const;
+
+export const CredentialEndpoints = {
+	LIST: (workspaceId: string) => `/workspaces/${workspaceId}/credentials`,
+	CREATE: (workspaceId: string) => `/workspaces/${workspaceId}/credentials`,
+	DETAIL: (workspaceId: string, id: string) => `/workspaces/${workspaceId}/credentials/${id}`,
+	UPDATE: (workspaceId: string, id: string) => `/workspaces/${workspaceId}/credentials/${id}`,
+	DELETE: (workspaceId: string, id: string) => `/workspaces/${workspaceId}/credentials/${id}`,
+	TEST: (workspaceId: string, id: string) => `/workspaces/${workspaceId}/credentials/${id}/test`,
+	REFRESH: (workspaceId: string, id: string) => `/workspaces/${workspaceId}/credentials/${id}/refresh`,
+	SHARES: (workspaceId: string, id: string) => `/workspaces/${workspaceId}/credentials/${id}/shares`,
+	SHARE: (workspaceId: string, id: string) => `/workspaces/${workspaceId}/credentials/${id}/share`,
+	UNSHARE: (workspaceId: string, id: string, userId: string) =>
+		`/workspaces/${workspaceId}/credentials/${id}/shares/${userId}`,
+	SHARING_SCOPE: (workspaceId: string, id: string) =>
+		`/workspaces/${workspaceId}/credentials/${id}/sharing-scope`,
+} as const;
+
+export const VariableEndpoints = {
+	LIST: (workspaceId: string) => `/workspaces/${workspaceId}/env-vars`,
+	CREATE: (workspaceId: string) => `/workspaces/${workspaceId}/env-vars`,
+	DETAIL: (workspaceId: string, id: string) => `/workspaces/${workspaceId}/env-vars/${id}`,
+	UPDATE: (workspaceId: string, id: string) => `/workspaces/${workspaceId}/env-vars/${id}`,
+	DELETE: (workspaceId: string, id: string) => `/workspaces/${workspaceId}/env-vars/${id}`,
+	RESOLVE: (workspaceId: string) => `/workspaces/${workspaceId}/env-vars/resolve`,
+} as const;
+
+export const TemplateEndpoints = {
+	LIST: '/templates',
+	FEATURED: '/templates/featured',
+	CATEGORIES: '/templates/categories',
+	DETAIL: (id: string) => `/templates/${id}`,
+	VIEW: (id: string) => `/templates/${id}/view`,
+	USE: (workspaceId: string, id: string) => `/workspaces/${workspaceId}/templates/${id}/use`,
+} as const;
+
+export const OAuthEndpoints = {
+	PROVIDERS: '/oauth/providers',
+	AUTHORIZE: (workspaceId: string, provider: string) =>
+		`/workspaces/${workspaceId}/oauth/authorize/${provider}`,
+} as const;
+
+export const DashboardEndpoints = {
+	DATA: (workspaceId: string) => `/workspaces/${workspaceId}/dashboard`,
+	STATS: (workspaceId: string) => `/workspaces/${workspaceId}/stats`,
 } as const;

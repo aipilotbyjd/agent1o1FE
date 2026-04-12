@@ -2,15 +2,10 @@ import { FC } from 'react';
 import Card, { CardBody } from '@/components/ui/Card';
 import Icon from '@/components/icon/Icon';
 import Button from '@/components/ui/Button';
-import { WorkflowTableSkeleton, StatsCardsSkeleton } from '@/components/ui/TableSkeleton';
+import TableSkeleton from '@/components/ui/TableSkeleton';
 
 export const LoadingStatePartial: FC = () => {
-	return (
-		<div className='space-y-4'>
-			<StatsCardsSkeleton />
-			<WorkflowTableSkeleton />
-		</div>
-	);
+	return <TableSkeleton rows={8} columns={6} />;
 };
 
 interface IErrorStatePartialProps {
@@ -29,11 +24,11 @@ export const ErrorStatePartial: FC<IErrorStatePartialProps> = ({ onRetry }) => {
 					/>
 				</div>
 				<h3 className='mb-2 text-lg font-semibold text-zinc-900 dark:text-white'>
-					Failed to Load Workflows
+					Failed to Load Executions
 				</h3>
 				<p className='mx-auto mb-6 max-w-md text-zinc-500'>
-					We couldn't load your workflows. This might be a temporary issue. Please check
-					your connection and try again.
+					We couldn&apos;t load your execution history. This might be a temporary issue. Please
+					check your connection and try again.
 				</p>
 				<div className='flex items-center justify-center gap-3'>
 					<Button variant='outline' icon='RotateClockwise' onClick={onRetry}>

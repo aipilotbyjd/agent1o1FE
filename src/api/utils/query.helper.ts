@@ -36,10 +36,53 @@ export const queryKeys = {
 
 	// Executions (scoped by workspace)
 	executions: {
-		all: () => ['executions'] as const,
-		list: (workspaceId: string, params?: Record<string, unknown>) =>
+		all: (workspaceId?: string) => workspaceId ? ['executions', workspaceId] as const : ['executions'] as const,
+		list: (workspaceId: string | undefined, params?: Record<string, unknown>) =>
 			['executions', 'list', workspaceId, params] as const,
-		detail: (id: string) => ['executions', 'detail', id] as const,
+		detail: (workspaceId: string | undefined, id: string | undefined) =>
+			['executions', 'detail', workspaceId, id] as const,
 		logs: (id: string) => ['executions', 'logs', id] as const,
+		nodes: (workspaceId: string | undefined, executionId: string | undefined) =>
+			['executions', 'nodes', workspaceId, executionId] as const,
+		nodeDetail: (workspaceId: string | undefined, executionId: string | undefined, nodeId: string | undefined) =>
+			['executions', 'nodes', workspaceId, executionId, nodeId] as const,
+		stats: (workspaceId: string | undefined, params?: Record<string, unknown>) =>
+			['executions', 'stats', workspaceId, params] as const,
+	},
+
+	// Credentials (scoped by workspace)
+	credentials: {
+		all: (workspaceId?: string) => workspaceId ? ['credentials', workspaceId] as const : ['credentials'] as const,
+		list: (workspaceId: string | undefined, params?: Record<string, unknown>) =>
+			['credentials', 'list', workspaceId, params] as const,
+		detail: (workspaceId: string | undefined, id: string | undefined) =>
+			['credentials', 'detail', workspaceId, id] as const,
+	},
+
+	// Variables (scoped by workspace)
+	variables: {
+		all: (workspaceId?: string) => workspaceId ? ['variables', workspaceId] as const : ['variables'] as const,
+		list: (workspaceId: string | undefined, params?: Record<string, unknown>) =>
+			['variables', 'list', workspaceId, params] as const,
+		detail: (workspaceId: string | undefined, id: string | undefined) =>
+			['variables', 'detail', workspaceId, id] as const,
+		resolve: (workspaceId: string | undefined, name: string | undefined) =>
+			['variables', 'resolve', workspaceId, name] as const,
+	},
+
+	// Templates (global)
+	templates: {
+		all: () => ['templates'] as const,
+		list: (params?: Record<string, unknown>) => ['templates', 'list', params] as const,
+		featured: () => ['templates', 'featured'] as const,
+		categories: () => ['templates', 'categories'] as const,
+		detail: (id: string) => ['templates', 'detail', id] as const,
+	},
+
+	// Dashboard (scoped by workspace)
+	dashboard: {
+		all: (workspaceId: string) => ['dashboard', workspaceId] as const,
+		data: (workspaceId: string, period: string) => ['dashboard', 'data', workspaceId, period] as const,
+		stats: (workspaceId: string) => ['dashboard', 'stats', workspaceId] as const,
 	},
 };

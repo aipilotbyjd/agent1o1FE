@@ -3,3 +3,7 @@ export { UserService } from './user.service';
 export { WorkspaceService } from './workspace.service';
 export { WorkflowService } from './workflows.service';
 export { ExecutionService } from './execution.service';
+export { CredentialService } from './credential.service';
+export { VariableService } from './variable.service';
+export { TemplateService } from './template.service';
+export { DashboardService } from './dashboard.service';

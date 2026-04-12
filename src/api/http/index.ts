@@ -5,4 +5,9 @@ export {
 	WorkspaceEndpoints,
 	WorkflowEndpoints,
 	ExecutionEndpoints,
+	CredentialEndpoints,
+	VariableEndpoints,
+	TemplateEndpoints,
+	OAuthEndpoints,
+	DashboardEndpoints,
 } from './endpoints';
