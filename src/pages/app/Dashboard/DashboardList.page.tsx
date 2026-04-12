@@ -2,6 +2,7 @@ import { useOutletContext } from 'react-router';
 import { useEffect } from 'react';
 import Icon from '@/components/icon/Icon';
 import { useFetchDashboard } from '@/api';
+import { useCurrentWorkspaceId } from '@/context/workspaceContext';
 
 export interface OutletContextType {
 	headerLeft?: React.ReactNode;
@@ -9,8 +10,8 @@ export interface OutletContextType {
 }
 
 const DashboardListPage = () => {
-	// Using a fixed workspace ID for now - this should come from context
-	const workspaceId = 'demo-workspace-id';
+	// Using the active workspace ID from context
+	const workspaceId = useCurrentWorkspaceId() || '';
 
 	const { setHeaderLeft } = useOutletContext<OutletContextType>();
 

@@ -14,6 +14,7 @@ import { toast } from 'react-toastify';
 
 import { useFetchVariables, useDeleteVariable } from '@/api';
 import { IVariable, TVariableSortBy, TSortOrder } from '@/types/variable.type';
+import { useCurrentWorkspaceId } from '@/context/workspaceContext';
 
 // Partials
 import FiltersPartial from './_partial/Filters.partial';
@@ -27,8 +28,8 @@ export interface OutletContextType {
 }
 
 const VariablesListPage = () => {
-	// Using a fixed workspace ID for now - this should come from context
-	const workspaceId = 'demo-workspace-id';
+	// Get active workspace ID
+	const workspaceId = useCurrentWorkspaceId() || undefined;
 
 	// Filter state
 	const [searchQuery, setSearchQuery] = useState('');

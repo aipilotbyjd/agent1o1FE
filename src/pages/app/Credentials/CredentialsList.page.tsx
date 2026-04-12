@@ -14,6 +14,7 @@ import { SortingState } from '@tanstack/react-table';
 import { useFetchCredentials, useDeleteCredential, useTestCredential } from '@/api';
 import { ICredential, ICredentialFilters, TCredentialType, TCredentialSortBy, TSortOrder } from '@/types/credential.type';
 import { toast } from 'react-toastify';
+import { useCurrentWorkspaceId } from '@/context/workspaceContext';
 
 // Partials
 import FiltersPartial from './_partial/Filters.partial';
@@ -27,8 +28,8 @@ export interface OutletContextType {
 }
 
 const CredentialsListPage = () => {
-	// Using a fixed workspace ID for now - this should come from context
-	const workspaceId = 'demo-workspace-id';
+	// Get active workspace from context
+	const workspaceId = useCurrentWorkspaceId() || undefined;
 
 	// Filter state
 	const [searchQuery, setSearchQuery] = useState('');

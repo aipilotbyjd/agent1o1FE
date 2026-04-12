@@ -15,6 +15,7 @@ import { useFetchExecutions, useCancelExecution, useRetryExecution } from '@/api
 import { TExecution, TExecutionStatus, TExecutionTrigger } from '@/types/execution.type';
 import { TExecutionSortBy, TSortOrder } from './_helper/helper';
 import { toast } from 'react-toastify';
+import { useCurrentWorkspaceId } from '@/context/workspaceContext';
 
 // Partials
 import FiltersPartial from './_partial/Filters.partial';
@@ -36,8 +37,8 @@ interface IExecutionFilters {
 }
 
 const ExecutionsListPage = () => {
-	// Using a fixed workspace ID for now - this should come from context
-	const workspaceId = 'demo-workspace-id';
+	// Get active workspace ID
+	const workspaceId = useCurrentWorkspaceId() || undefined;
 
 	// Filter state
 	const [searchQuery, setSearchQuery] = useState('');
