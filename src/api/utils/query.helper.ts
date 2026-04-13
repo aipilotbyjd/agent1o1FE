@@ -25,6 +25,23 @@ export const queryKeys = {
 		list: (workspaceId: string, params?: Record<string, unknown>) =>
 			['workflows', 'list', workspaceId, params] as const,
 		detail: (id: string) => ['workflows', 'detail', id] as const,
+		executions: (workspaceId: string, workflowId: string, params?: Record<string, unknown>) =>
+			['workflows', 'executions', workspaceId, workflowId, params] as const,
+		shares: (workspaceId: string, workflowId: string) =>
+			['workflows', 'shares', workspaceId, workflowId] as const,
+	},
+
+	// Tags (scoped by workspace)
+	tags: {
+		all: (workspaceId: string) => ['tags', workspaceId] as const,
+		list: (workspaceId: string, params?: Record<string, unknown>) =>
+			['tags', 'list', workspaceId, params] as const,
+		detail: (workspaceId: string, id: string) => ['tags', 'detail', workspaceId, id] as const,
+	},
+
+	// Public shares (no workspace scope)
+	publicShares: {
+		view: (token: string) => ['publicShares', 'view', token] as const,
 	},
 
 	// Folders (scoped by workspace)

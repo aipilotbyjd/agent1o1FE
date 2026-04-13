@@ -138,3 +138,17 @@ export interface IDuplicateWorkflowDto {
 	name?: string;
 	variables?: Record<string, string>;
 }
+
+// POST /workspaces/{id}/workflows/import
+export interface IImportWorkflowDto {
+	workflow_data: {
+		format_version: string;
+		workflow: Record<string, unknown>;
+	};
+}
+
+// POST /workspaces/{id}/folders/move-workflows
+export interface IMoveWorkflowsDto {
+	folder_id: string | null;
+	workflow_ids: string[];
+}

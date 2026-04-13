@@ -31,7 +31,43 @@ export {
 	useCreateWorkflow,
 	useUpdateWorkflow,
 	useDeleteWorkflow,
+	useExecuteWorkflow,
+	useActivateWorkflow,
+	useDeactivateWorkflow,
+	useDuplicateWorkflow,
+	useToggleFavorite,
 } from './useWorkflows';
+
+export {
+	useFetchWorkflowShares,
+	useCreateWorkflowShare,
+	useUpdateWorkflowShare,
+	useDeleteWorkflowShare,
+	useViewPublicShare,
+	useClonePublicShare,
+	useImportWorkflow,
+	useExportWorkflow,
+	useFetchWorkflowExecutions,
+	useMoveWorkflows,
+} from './useWorkflowExtras';
+
+export {
+	useFetchTags,
+	useFetchTag,
+	useCreateTag,
+	useUpdateTag,
+	useDeleteTag,
+	useAttachTagWorkflows,
+	useDetachTagWorkflows,
+} from './useTags';
+
+export {
+	useFetchFolders,
+	useFetchFolderById,
+	useCreateFolder,
+	useUpdateFolder,
+	useDeleteFolder,
+} from './useFolders';
 
 export {
 	useFetchExecutions,

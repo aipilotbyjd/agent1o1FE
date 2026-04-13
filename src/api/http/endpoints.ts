@@ -38,6 +38,23 @@ export const WorkflowEndpoints = {
 	ACTIVATE: (workspaceId: string, id: string) => `/workspaces/${workspaceId}/workflows/${id}/activate`,
 	DEACTIVATE: (workspaceId: string, id: string) => `/workspaces/${workspaceId}/workflows/${id}/deactivate`,
 	DUPLICATE: (workspaceId: string, id: string) => `/workspaces/${workspaceId}/workflows/${id}/duplicate`,
+	IMPORT: (workspaceId: string) => `/workspaces/${workspaceId}/workflows/import`,
+	EXPORT: (workspaceId: string, id: string) => `/workspaces/${workspaceId}/workflows/${id}/export`,
+	EXECUTIONS: (workspaceId: string, id: string) => `/workspaces/${workspaceId}/workflows/${id}/executions`,
+} as const;
+
+export const WorkflowShareEndpoints = {
+	LIST: (workspaceId: string, workflowId: string) =>
+		`/workspaces/${workspaceId}/workflows/${workflowId}/shares`,
+	CREATE: (workspaceId: string, workflowId: string) =>
+		`/workspaces/${workspaceId}/workflows/${workflowId}/shares`,
+	UPDATE: (workspaceId: string, workflowId: string, shareId: string) =>
+		`/workspaces/${workspaceId}/workflows/${workflowId}/shares/${shareId}`,
+	DELETE: (workspaceId: string, workflowId: string, shareId: string) =>
+		`/workspaces/${workspaceId}/workflows/${workflowId}/shares/${shareId}`,
+	VIEW_PUBLIC: (token: string) => `/shared/${token}`,
+	CLONE_PUBLIC: (workspaceId: string, token: string) =>
+		`/workspaces/${workspaceId}/shared/${token}/clone`,
 } as const;
 
 export const FolderEndpoints = {
@@ -46,6 +63,19 @@ export const FolderEndpoints = {
 	DETAIL: (workspaceId: string, id: string) => `/workspaces/${workspaceId}/folders/${id}`,
 	UPDATE: (workspaceId: string, id: string) => `/workspaces/${workspaceId}/folders/${id}`,
 	DELETE: (workspaceId: string, id: string) => `/workspaces/${workspaceId}/folders/${id}`,
+	MOVE_WORKFLOWS: (workspaceId: string) => `/workspaces/${workspaceId}/folders/move-workflows`,
+} as const;
+
+export const TagEndpoints = {
+	LIST: (workspaceId: string) => `/workspaces/${workspaceId}/tags`,
+	CREATE: (workspaceId: string) => `/workspaces/${workspaceId}/tags`,
+	DETAIL: (workspaceId: string, id: string) => `/workspaces/${workspaceId}/tags/${id}`,
+	UPDATE: (workspaceId: string, id: string) => `/workspaces/${workspaceId}/tags/${id}`,
+	DELETE: (workspaceId: string, id: string) => `/workspaces/${workspaceId}/tags/${id}`,
+	ATTACH_WORKFLOWS: (workspaceId: string, tagId: string) =>
+		`/workspaces/${workspaceId}/tags/${tagId}/workflows`,
+	DETACH_WORKFLOWS: (workspaceId: string, tagId: string) =>
+		`/workspaces/${workspaceId}/tags/${tagId}/workflows`,
 } as const;
 
 export const ExecutionEndpoints = {

@@ -1,7 +1,8 @@
 import axiosClient from '../http/axios.config';
-import { WorkflowEndpoints } from '../http/endpoints';
+import { WorkflowEndpoints, FolderEndpoints } from '../http/endpoints';
 import type { TApiResponse, TPaginatedResponse, TListParams } from '@/types/api.type';
-import type { TWorkflow, TCreateWorkflowDto, TUpdateWorkflowDto } from '@/types/workflow.type';
+import type { TWorkflow, TCreateWorkflowDto, TUpdateWorkflowDto, IImportWorkflowDto, IMoveWorkflowsDto } from '@/types/workflow.type';
+import type { TExecution } from '@/types/execution.type';
 
 export const WorkflowService = {
 	fetchAll: async (workspaceId: string, params?: TListParams): Promise<TPaginatedResponse<TWorkflow>> => {
@@ -56,5 +57,36 @@ export const WorkflowService = {
 			WorkflowEndpoints.DUPLICATE(workspaceId, id),
 		);
 		return data.data;
+	},
+
+	importWorkflow: async (workspaceId: string, payload: IImportWorkflowDto): Promise<TWorkflow> => {
+		const { data } = await axiosClient.post<TApiResponse<TWorkflow>>(
+			WorkflowEndpoints.IMPORT(workspaceId),
+			payload,
+		);
+		return data.data;
+	},
+
+	exportWorkflow: async (workspaceId: string, id: string): Promise<Record<string, unknown>> => {
+		const { data } = await axiosClient.get<TApiResponse<Record<string, unknown>>>(
+			WorkflowEndpoints.EXPORT(workspaceId, id),
+		);
+		return data.data;
+	},
+
+	fetchWorkflowExecutions: async (
+		workspaceId: string,
+		id: string,
+		params?: TListParams,
+	): Promise<TPaginatedResponse<TExecution>> => {
+		const { data } = await axiosClient.get<TPaginatedResponse<TExecution>>(
+			WorkflowEndpoints.EXECUTIONS(workspaceId, id),
+			{ params },
+		);
+		return data;
+	},
+
+	moveWorkflows: async (workspaceId: string, payload: IMoveWorkflowsDto): Promise<void> => {
+		await axiosClient.post(FolderEndpoints.MOVE_WORKFLOWS(workspaceId), payload);
 	},
 };
