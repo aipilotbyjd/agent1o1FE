@@ -14,7 +14,7 @@ const EmptyStatePartial: FC<IEmptyStatePartialProps> = ({
 	onAddNew,
 }) => {
 	return (
-		<div className='flex min-h-[60vh] items-center justify-center'>
+		<div className='flex flex-1 items-center justify-center py-12'>
 			<div className='w-full max-w-lg text-center'>
 				<div className='relative mx-auto mb-8 h-40 w-40'>
 					<div className='absolute inset-0 animate-pulse rounded-full bg-violet-100 dark:bg-violet-900/30' />

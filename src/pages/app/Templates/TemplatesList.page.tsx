@@ -1,5 +1,6 @@
 import { useOutletContext } from 'react-router';
 import { useEffect, useState, useMemo } from 'react';
+import Container from '@/components/layout/Container';
 import Subheader, {
 	SubheaderLeft,
 	SubheaderRight,
@@ -130,25 +131,27 @@ const TemplatesListPage = () => {
 					)}
 				</SubheaderRight>
 			</Subheader>
-			<div className='mx-auto w-full bg-white px-2 pt-4 pb-2 dark:bg-zinc-950'>
-				{isLoading ? (
-					<LoadingStatePartial />
-				) : isError ? (
-					<ErrorStatePartial onRetry={() => refetch()} />
-				) : filteredData.length === 0 ? (
-					<EmptyStatePartial hasFilters={!!hasFilters} onClearFilters={clearAllFilters} />
-				) : (
-					<div className='grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
-						{filteredData.map((template: ITemplate) => (
-							<TemplateCardPartial
-								key={template.id}
-								template={template}
-								onClick={handleCardClick}
-							/>
-						))}
-					</div>
-				)}
-			</div>
+			<Container className='flex h-full'>
+				<div className='flex min-w-0 flex-1 flex-col'>
+					{isLoading ? (
+						<LoadingStatePartial />
+					) : isError ? (
+						<ErrorStatePartial onRetry={() => refetch()} />
+					) : filteredData.length === 0 ? (
+						<EmptyStatePartial hasFilters={!!hasFilters} onClearFilters={clearAllFilters} />
+					) : (
+						<div className='grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
+							{filteredData.map((template: ITemplate) => (
+								<TemplateCardPartial
+									key={template.id}
+									template={template}
+									onClick={handleCardClick}
+								/>
+							))}
+						</div>
+					)}
+				</div>
+			</Container>
 
 			{/* Template Detail Modal */}
 			<TemplateDetailModalPartial

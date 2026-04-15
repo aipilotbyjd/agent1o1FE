@@ -12,7 +12,7 @@ const EmptyStatePartial: FC<IEmptyStatePartialProps> = ({ hasFilters, onClearFil
 	const navigate = useNavigate();
 
 	return (
-		<div className='flex min-h-[60vh] items-center justify-center'>
+		<div className='flex flex-1 items-center justify-center py-12'>
 			<div className='w-full max-w-lg text-center'>
 				<div className='relative mx-auto mb-8 h-40 w-40'>
 					<div className='absolute inset-0 animate-pulse rounded-full bg-emerald-100 dark:bg-emerald-900/30' />
@@ -83,7 +83,8 @@ const EmptyStatePartial: FC<IEmptyStatePartialProps> = ({ hasFilters, onClearFil
 						<div className='flex flex-wrap justify-center gap-3'>
 							<Button
 								variant='solid'
-								icon='Workflow'
+								icon='ArrowRight01'
+								rightIcon='Workflow'
 								onClick={() => navigate('/app/workflows')}>
 								Go to Workflows
 							</Button>

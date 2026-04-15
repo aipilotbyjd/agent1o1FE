@@ -1,5 +1,6 @@
 import { useOutletContext } from 'react-router';
 import { useEffect, useState, useMemo } from 'react';
+import Container from '@/components/layout/Container';
 import Subheader, {
 	SubheaderLeft,
 	SubheaderRight,
@@ -153,23 +154,25 @@ const ExecutionsListPage = () => {
 					</Button>
 				</SubheaderRight>
 			</Subheader>
-			<div className='mx-auto w-full bg-white px-2 pt-4 pb-2 dark:bg-zinc-950'>
-				{isLoading ? (
-					<LoadingStatePartial />
-				) : isError ? (
-					<ErrorStatePartial onRetry={() => refetch()} />
-				) : filteredData.length === 0 ? (
-					<EmptyStatePartial hasFilters={!!hasFilters} onClearFilters={clearAllFilters} />
-				) : (
-					<TablePartial
-						data={filteredData}
-						sorting={sorting}
-						onSortingChange={setSorting}
-						onCancel={handleCancel}
-						onRetry={handleRetry}
-					/>
-				)}
-			</div>
+			<Container className='flex h-full'>
+				<div className='flex min-w-0 flex-1 flex-col'>
+					{isLoading ? (
+						<LoadingStatePartial />
+					) : isError ? (
+						<ErrorStatePartial onRetry={() => refetch()} />
+					) : filteredData.length === 0 ? (
+						<EmptyStatePartial hasFilters={!!hasFilters} onClearFilters={clearAllFilters} />
+					) : (
+						<TablePartial
+							data={filteredData}
+							sorting={sorting}
+							onSortingChange={setSorting}
+							onCancel={handleCancel}
+							onRetry={handleRetry}
+						/>
+					)}
+				</div>
+			</Container>
 		</>
 	);
 };
