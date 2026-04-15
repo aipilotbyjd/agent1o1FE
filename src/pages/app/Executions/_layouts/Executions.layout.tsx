@@ -3,6 +3,7 @@ import Header, { HeaderLeft, HeaderRight } from '@/components/layout/Header';
 import { Dispatch, ReactNode, SetStateAction, useState } from 'react';
 import ChangeDarkModeTemplate from '@/templates/header/ChangeDarkMode.template';
 import ChangeLanguageTemplate from '@/templates/header/ChangeLanguage.template';
+import EXAMPLE from '@/examples/_index';
 
 export interface OutletContextType {
 	headerLeft?: ReactNode;
@@ -19,6 +20,8 @@ const ExecutionsLayout = () => {
 				<HeaderRight>
 					<ChangeDarkModeTemplate />
 					<ChangeLanguageTemplate />
+					<EXAMPLE.Ui.Dropdown.Notifications />
+					<EXAMPLE.Ui.Dropdown.ProjectsWorkspace />
 				</HeaderRight>
 			</Header>
 			<Outlet context={{ headerLeft, setHeaderLeft }} />

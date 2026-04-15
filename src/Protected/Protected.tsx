@@ -15,8 +15,8 @@ const Protected = ({ role: _role }: ProtectedProps) => {
 	// Check token validity
 	const hasToken = hasValidToken();
 
-	// Show loading state
-	if (isLoading) {
+	// Show loading state — also treat "has token but user not loaded yet" as loading
+	if (isLoading || (hasToken && !isAuthenticated)) {
 		return (
 			<div className='flex h-full items-center justify-center'>
 				<img src={LogoDark} alt='Loading...' className='h-24 animate-pulse' />

@@ -114,3 +114,15 @@ export {
 	useFetchDashboard,
 	useFetchQuickStats,
 } from './useDashboard';
+
+export {
+	useFetchMembers,
+	useUpdateMemberRole,
+	useRemoveMember,
+	useLeaveWorkspace,
+	useFetchInvitations,
+	useSendInvitation,
+	useCancelInvitation,
+	useFetchWorkspaceSettings,
+	useUpdateWorkspaceSettings,
+} from './useTeam';

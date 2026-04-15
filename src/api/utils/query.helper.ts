@@ -96,6 +96,24 @@ export const queryKeys = {
 		detail: (id: string) => ['templates', 'detail', id] as const,
 	},
 
+	// Members (scoped by workspace)
+	members: {
+		all: (workspaceId: string) => ['members', workspaceId] as const,
+		list: (workspaceId: string) => ['members', 'list', workspaceId] as const,
+	},
+
+	// Invitations (scoped by workspace)
+	invitations: {
+		all: (workspaceId: string) => ['invitations', workspaceId] as const,
+		list: (workspaceId: string) => ['invitations', 'list', workspaceId] as const,
+	},
+
+	// Workspace Settings (scoped by workspace)
+	workspaceSettings: {
+		all: (workspaceId: string) => ['workspaceSettings', workspaceId] as const,
+		detail: (workspaceId: string) => ['workspaceSettings', 'detail', workspaceId] as const,
+	},
+
 	// Dashboard (scoped by workspace)
 	dashboard: {
 		all: (workspaceId: string) => ['dashboard', workspaceId] as const,

@@ -28,6 +28,25 @@ export const WorkspaceEndpoints = {
 	DELETE: (id: string) => `/workspaces/${id}`,
 } as const;
 
+export const WorkspaceMemberEndpoints = {
+	LIST: (workspaceId: string) => `/workspaces/${workspaceId}/members`,
+	UPDATE_ROLE: (workspaceId: string, userId: string) => `/workspaces/${workspaceId}/members/${userId}`,
+	REMOVE: (workspaceId: string, userId: string) => `/workspaces/${workspaceId}/members/${userId}`,
+	TRANSFER_OWNERSHIP: (workspaceId: string) => `/workspaces/${workspaceId}/transfer-ownership`,
+	LEAVE: (workspaceId: string) => `/workspaces/${workspaceId}/leave`,
+} as const;
+
+export const WorkspaceInvitationEndpoints = {
+	LIST: (workspaceId: string) => `/workspaces/${workspaceId}/invitations`,
+	SEND: (workspaceId: string) => `/workspaces/${workspaceId}/invitations`,
+	CANCEL: (workspaceId: string, invitationId: string) => `/workspaces/${workspaceId}/invitations/${invitationId}`,
+} as const;
+
+export const WorkspaceSettingsEndpoints = {
+	GET: (workspaceId: string) => `/workspaces/${workspaceId}/settings`,
+	UPDATE: (workspaceId: string) => `/workspaces/${workspaceId}/settings`,
+} as const;
+
 export const WorkflowEndpoints = {
 	LIST: (workspaceId: string) => `/workspaces/${workspaceId}/workflows`,
 	CREATE: (workspaceId: string) => `/workspaces/${workspaceId}/workflows`,
@@ -108,12 +127,12 @@ export const CredentialEndpoints = {
 } as const;
 
 export const VariableEndpoints = {
-	LIST: (workspaceId: string) => `/workspaces/${workspaceId}/env-vars`,
-	CREATE: (workspaceId: string) => `/workspaces/${workspaceId}/env-vars`,
-	DETAIL: (workspaceId: string, id: string) => `/workspaces/${workspaceId}/env-vars/${id}`,
-	UPDATE: (workspaceId: string, id: string) => `/workspaces/${workspaceId}/env-vars/${id}`,
-	DELETE: (workspaceId: string, id: string) => `/workspaces/${workspaceId}/env-vars/${id}`,
-	RESOLVE: (workspaceId: string) => `/workspaces/${workspaceId}/env-vars/resolve`,
+	LIST: (workspaceId: string) => `/workspaces/${workspaceId}/variables`,
+	CREATE: (workspaceId: string) => `/workspaces/${workspaceId}/variables`,
+	DETAIL: (workspaceId: string, id: string) => `/workspaces/${workspaceId}/variables/${id}`,
+	UPDATE: (workspaceId: string, id: string) => `/workspaces/${workspaceId}/variables/${id}`,
+	DELETE: (workspaceId: string, id: string) => `/workspaces/${workspaceId}/variables/${id}`,
+	RESOLVE: (workspaceId: string) => `/workspaces/${workspaceId}/variables/resolve`,
 } as const;
 
 export const TemplateEndpoints = {
