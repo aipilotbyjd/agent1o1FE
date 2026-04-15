@@ -333,7 +333,6 @@ const WorkflowsListPage = () => {
 					<Button
 						aria-label='New Folder'
 						variant='soft'
-						color='primary'
 						dimension='sm'
 						icon='FolderAdd'
 						onClick={() => {

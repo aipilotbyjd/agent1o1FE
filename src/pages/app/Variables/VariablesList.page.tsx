@@ -127,7 +127,6 @@ const VariablesListPage = () => {
 					<Button
 						aria-label='New Variable'
 						variant='solid'
-						color='primary'
 						icon='PlusSignCircle'
 						onClick={() => toast.info('Add variable coming soon')}>
 						Create Variable
