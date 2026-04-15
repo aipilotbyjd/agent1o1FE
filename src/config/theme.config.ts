@@ -42,7 +42,7 @@ const themeConfig: TThemeConfigs = {
 	projectName: 'React TypeScript Tailwind Admin',
 	language: 'en',
 	theme: DARK_MODE.SYSTEM,
-	themeColor: 'blue',
+	themeColor: 'primary',
 	themeColorShade: '500',
 	rounded: 'rounded-lg',
 	borderWidth: 'border-2',

@@ -7,10 +7,12 @@ import Dropdown, {
 import Button from '@/components/ui/Button';
 import Icon from '@/components/icon/Icon';
 import Avatar from '@/components/ui/Avatar';
+import { useNavigate } from 'react-router';
 import { useWorkspace } from '@/context/workspaceContext';
 
 const DropdownProjectsWorkspaceExample = () => {
 	const { currentWorkspace, workspaces, switchWorkspace } = useWorkspace();
+	const navigate = useNavigate();
 
 	return (
 		<Dropdown>
@@ -53,9 +55,13 @@ const DropdownProjectsWorkspaceExample = () => {
 					</DropdownItem>
 				))}
 				<DropdownDivider />
-				<DropdownItem icon='PlusSignCircle'>Add new workspace</DropdownItem>
+				<DropdownItem icon='PlusSignCircle' onClick={() => navigate('/app/settings/workspaces')}>
+					Add new workspace
+				</DropdownItem>
 				<DropdownDivider />
-				<DropdownItem icon='Settings02'>Manage workspaces</DropdownItem>
+				<DropdownItem icon='Settings02' onClick={() => navigate('/app/settings/workspaces')}>
+					Manage workspaces
+				</DropdownItem>
 			</DropdownMenu>
 		</Dropdown>
 	);

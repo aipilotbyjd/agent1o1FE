@@ -1,5 +1,10 @@
 import { useState, useMemo } from 'react';
-import Card, { CardBody, CardHeader, CardHeaderChild, CardTitle } from '@/components/ui/Card';
+import Container from '@/components/layout/Container';
+import Subheader, {
+	SubheaderLeft,
+	SubheaderRight,
+	SubheaderSeparator,
+} from '@/components/layout/Subheader';
 import Button from '@/components/ui/Button';
 import Input from '@/components/form/Input';
 import Icon from '@/components/icon/Icon';
@@ -81,189 +86,175 @@ const SettingsTeamsPage = () => {
 
 	if (!workspaceId) {
 		return (
-			<div className='flex items-center justify-center py-20'>
-				<p className='text-zinc-500'>No workspace selected.</p>
-			</div>
+			<Container>
+				<div className='flex items-center justify-center py-20'>
+					<p className='text-zinc-500'>No workspace selected.</p>
+				</div>
+			</Container>
 		);
 	}
 
 	const currentRoleOption = ROLE_OPTIONS.find((o) => o.value === roleFilter);
+	const hasFilters = search || roleFilter;
 
 	return (
 		<>
-			<Card>
-				<CardHeader>
-					<CardHeaderChild>
-						<CardTitle
-							iconProps={{ icon: 'UserMultiple', color: 'primary', size: 'text-3xl' }}>
-							Team Management
-						</CardTitle>
-						<div className='ms-4 flex gap-2'>
-							<Button
-								variant={activeTab === 'members' ? 'solid' : 'outline'}
-								dimension='sm'
-								onClick={() => setActiveTab('members')}>
-								Members
-								<Badge variant='solid' color='zinc' className='ms-2'>
-									{members.length}
+			<Subheader>
+				<SubheaderLeft>
+					<div className='flex gap-2'>
+						<Button
+							variant={activeTab === 'members' ? 'solid' : 'outline'}
+							dimension='sm'
+							onClick={() => setActiveTab('members')}>
+							Members
+							<Badge variant='solid' color='zinc' className='ms-2'>
+								{members.length}
+							</Badge>
+						</Button>
+						<Button
+							variant={activeTab === 'invitations' ? 'solid' : 'outline'}
+							dimension='sm'
+							onClick={() => setActiveTab('invitations')}>
+							Invitations
+							{invitations.length > 0 && (
+								<Badge variant='solid' color='amber' className='ms-2'>
+									{invitations.length}
 								</Badge>
-							</Button>
-							<Button
-								variant={activeTab === 'invitations' ? 'solid' : 'outline'}
-								dimension='sm'
-								onClick={() => setActiveTab('invitations')}>
-								Invitations
-								{invitations.length > 0 && (
-									<Badge variant='solid' color='amber' className='ms-2'>
-										{invitations.length}
-									</Badge>
-								)}
-							</Button>
-						</div>
-					</CardHeaderChild>
-					<CardHeaderChild>
-						<Input
-							placeholder='Search...'
-							value={search}
-							onChange={(e) => setSearch(e.target.value)}
-							className='!w-56'
-							name='search'
-						/>
-						{activeTab === 'members' && (
-							<Dropdown>
-								<DropdownToggle hasIcon={false}>
-									<Button
-										variant={roleFilter ? 'solid' : 'outline'}
-										color={roleFilter ? 'primary' : undefined}
-										dimension='sm'
-										rightIcon='ChevronDown'>
-										{currentRoleOption?.icon && (
-											<Icon icon={currentRoleOption.icon} className='me-1' />
-										)}
-										{currentRoleOption?.label || 'Role'}
-									</Button>
-								</DropdownToggle>
-								<DropdownMenu placement='bottom-end'>
-									{ROLE_OPTIONS.map((opt) => (
-										<DropdownItem
-											key={opt.value}
-											onClick={() =>
-												setRoleFilter(opt.value as TWorkspaceRole | '')
-											}>
-											<Icon
-												icon={opt.icon}
-												color={opt.color}
-												className='me-2'
-												size='text-lg'
-											/>
-											{opt.label}
-											{roleFilter === opt.value && (
-												<Icon
-													icon='Tick02'
-													color='primary'
-													className='ms-auto'
-												/>
-											)}
-										</DropdownItem>
-									))}
-								</DropdownMenu>
-							</Dropdown>
-						)}
-						{canManageMembers(currentUserRole) && (
-							<Button
-								variant='solid'
-								icon='UserAdd02'
-								onClick={() => setIsInviteOpen(true)}>
-								Invite
-							</Button>
-						)}
-						{currentUserRole !== 'owner' && (
-							<Button
-								variant='outline'
-								color='red'
-								icon='Logout04'
-								onClick={() => setIsLeaveOpen(true)}>
-								Leave
-							</Button>
-						)}
-					</CardHeaderChild>
-				</CardHeader>
-				<CardBody>
+							)}
+						</Button>
+					</div>
+				</SubheaderLeft>
+				<SubheaderRight>
+					<Input
+						placeholder='Search...'
+						value={search}
+						onChange={(e) => setSearch(e.target.value)}
+						className='!w-56'
+						name='search'
+						dimension='sm'
+					/>
 					{activeTab === 'members' && (
-						<>
-							{membersLoading ? (
-								<div className='flex items-center justify-center py-10'>
-									<p className='text-zinc-500'>Loading members...</p>
-								</div>
-							) : filteredMembers.length === 0 ? (
-								<div className='flex flex-col items-center justify-center py-10'>
-									<Icon icon='UserMultiple' size='text-5xl' color='zinc' />
-									<p className='mt-4 text-zinc-500'>
-										{search || roleFilter
-											? 'No members match your filters.'
-											: 'No members yet.'}
-									</p>
-									{(search || roleFilter) && (
-										<Button
-											variant='outline'
-											dimension='sm'
-											className='mt-2'
-											onClick={() => {
-												setSearch('');
-												setRoleFilter('');
-											}}>
-											Clear Filters
-										</Button>
+						<Dropdown>
+							<DropdownToggle hasIcon={false}>
+								<Button
+									variant={roleFilter ? 'solid' : 'outline'}
+									color={roleFilter ? 'primary' : undefined}
+									dimension='sm'
+									rightIcon='ChevronDown'>
+									{currentRoleOption?.icon && (
+										<Icon icon={currentRoleOption.icon} className='me-1' />
 									)}
-								</div>
-							) : (
-								<MembersTable
-									members={filteredMembers}
-									currentUserRole={currentUserRole}
-									currentUserId={currentUserId}
-									onChangeRole={handleChangeRole}
-									onRemove={handleRemoveMember}
-								/>
-							)}
-						</>
+									{currentRoleOption?.label || 'Role'}
+								</Button>
+							</DropdownToggle>
+							<DropdownMenu placement='bottom-end'>
+								{ROLE_OPTIONS.map((opt) => (
+									<DropdownItem
+										key={opt.value}
+										onClick={() =>
+											setRoleFilter(opt.value as TWorkspaceRole | '')
+										}>
+										<Icon
+											icon={opt.icon}
+											color={opt.color}
+											className='me-2'
+											size='text-lg'
+										/>
+										{opt.label}
+										{roleFilter === opt.value && (
+											<Icon icon='Tick02' color='primary' className='ms-auto' />
+										)}
+									</DropdownItem>
+								))}
+							</DropdownMenu>
+						</Dropdown>
 					)}
-					{activeTab === 'invitations' && (
-						<>
-							{invitationsLoading ? (
-								<div className='flex items-center justify-center py-10'>
-									<p className='text-zinc-500'>Loading invitations...</p>
-								</div>
-							) : filteredInvitations.length === 0 ? (
-								<div className='flex flex-col items-center justify-center py-10'>
-									<Icon icon='Mail02' size='text-5xl' color='zinc' />
-									<p className='mt-4 text-zinc-500'>
-										{search
-											? 'No invitations match your search.'
-											: 'No pending invitations.'}
-									</p>
-									{canManageMembers(currentUserRole) && !search && (
-										<Button
-											variant='outline'
-											dimension='sm'
-											className='mt-2'
-											icon='UserAdd02'
-											onClick={() => setIsInviteOpen(true)}>
-											Invite a Member
-										</Button>
-									)}
-								</div>
-							) : (
-								<InvitationsTable
-									invitations={filteredInvitations}
-									currentUserRole={currentUserRole}
-									onCancel={handleCancelInvitation}
-									isCancelling={cancelInvitation.isPending}
-								/>
-							)}
-						</>
+					{hasFilters && (
+						<Button
+							variant='outline'
+							color='red'
+							dimension='sm'
+							icon='Cancel01'
+							onClick={() => {
+								setSearch('');
+								setRoleFilter('');
+							}}>
+							Clear
+						</Button>
 					)}
-				</CardBody>
-			</Card>
+					<SubheaderSeparator />
+					{canManageMembers(currentUserRole) && (
+						<Button
+							variant='soft'
+							icon='UserAdd02'
+							onClick={() => setIsInviteOpen(true)}>
+							Invite
+						</Button>
+					)}
+					{currentUserRole !== 'owner' && (
+						<Button
+							variant='outline'
+							color='red'
+							icon='Logout04'
+							onClick={() => setIsLeaveOpen(true)}>
+							Leave
+						</Button>
+					)}
+				</SubheaderRight>
+			</Subheader>
+			<div className='mx-auto w-full bg-white px-2 pt-4 pb-2 dark:bg-zinc-950'>
+				{activeTab === 'members' && (
+					<>
+						{membersLoading ? (
+							<div className='flex items-center justify-center py-10'>
+								<p className='text-zinc-500'>Loading members...</p>
+							</div>
+						) : filteredMembers.length === 0 ? (
+							<div className='flex flex-col items-center justify-center py-10'>
+								<Icon icon='UserMultiple' size='text-5xl' color='zinc' />
+								<p className='mt-4 text-zinc-500'>
+									{hasFilters
+										? 'No members match your filters.'
+										: 'No members yet.'}
+								</p>
+							</div>
+						) : (
+							<MembersTable
+								members={filteredMembers}
+								currentUserRole={currentUserRole}
+								currentUserId={currentUserId}
+								onChangeRole={handleChangeRole}
+								onRemove={handleRemoveMember}
+							/>
+						)}
+					</>
+				)}
+				{activeTab === 'invitations' && (
+					<>
+						{invitationsLoading ? (
+							<div className='flex items-center justify-center py-10'>
+								<p className='text-zinc-500'>Loading invitations...</p>
+							</div>
+						) : filteredInvitations.length === 0 ? (
+							<div className='flex flex-col items-center justify-center py-10'>
+								<Icon icon='Mail02' size='text-5xl' color='zinc' />
+								<p className='mt-4 text-zinc-500'>
+									{hasFilters
+										? 'No invitations match your search.'
+										: 'No pending invitations.'}
+								</p>
+							</div>
+						) : (
+							<InvitationsTable
+								invitations={filteredInvitations}
+								currentUserRole={currentUserRole}
+								onCancel={handleCancelInvitation}
+								isCancelling={cancelInvitation.isPending}
+							/>
+						)}
+					</>
+				)}
+			</div>
 
 			<InviteModal
 				isOpen={isInviteOpen}
