@@ -147,7 +147,7 @@ const ExecutionsListPage = () => {
 					<SubheaderSeparator />
 					<Button
 						aria-label='Refresh'
-						variant='soft'
+						variant='solid'
 						icon='RotateClockwise'
 						onClick={() => refetch()}>
 						Refresh

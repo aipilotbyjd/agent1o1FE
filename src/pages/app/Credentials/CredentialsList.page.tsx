@@ -137,7 +137,7 @@ const CredentialsListPage = () => {
 					<SubheaderSeparator />
 					<Button
 						aria-label='New Credential'
-						variant='soft'
+						variant='solid'
 						icon='PlusSignCircle'
 						onClick={() => toast.info('Add credential coming soon')}>
 						New Credential

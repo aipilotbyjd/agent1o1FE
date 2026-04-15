@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import Container from '@/components/layout/Container';
 import Subheader, {
 	SubheaderLeft,
 	SubheaderRight,
@@ -89,114 +90,115 @@ const SettingsWorkspacesPage = () => {
 				</SubheaderLeft>
 				<SubheaderRight>
 					<Button
-						variant='soft'
+						variant='solid'
 						icon='Add01'
 						onClick={() => setIsCreateOpen(true)}>
 						New Workspace
 					</Button>
 				</SubheaderRight>
 			</Subheader>
-			<div className='mx-auto w-full bg-white px-2 pt-4 pb-2 dark:bg-zinc-950'>
-				{workspaces.length === 0 ? (
-					<div className='flex flex-col items-center justify-center py-10'>
-						<Icon
-							icon='DashboardSquare03'
-							size='text-5xl'
-							color='zinc'
-						/>
-						<p className='mt-4 text-zinc-500'>No workspaces yet.</p>
-						<Button
-							variant='outline'
-							dimension='sm'
-							icon='Add01'
-							className='mt-2'
-							onClick={() => setIsCreateOpen(true)}>
-							Create Your First Workspace
-						</Button>
-					</div>
-				) : (
-					<div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>
-						{workspaces.map((ws) => {
-							const isCurrent = ws.id === currentWorkspace?.id;
-							return (
-								<div
-									key={ws.id}
-									className={`group relative rounded-xl border p-4 transition-all ${
-										isCurrent
-											? 'border-primary-500 bg-primary-50/50 dark:bg-primary-950/20'
-											: 'border-zinc-200 hover:border-zinc-300 dark:border-zinc-700 dark:hover:border-zinc-600'
-									}`}>
-									{isCurrent && (
-										<Badge
-											variant='solid'
-											color='primary'
-											className='absolute right-3 top-3'>
-											Current
-										</Badge>
-									)}
-									<div className='mb-3 flex items-center gap-3'>
-										<div className='flex h-10 w-10 items-center justify-center rounded-lg bg-primary-100 dark:bg-primary-900/30'>
-											<Icon
-												icon='DashboardSquare03'
+			<Container className='flex h-full'>
+				<div className='flex min-w-0 flex-1 flex-col'>
+					{workspaces.length === 0 ? (
+						<div className='flex flex-1 flex-col items-center justify-center py-12'>
+							<Icon
+								icon='DashboardSquare03'
+								size='text-5xl'
+								color='zinc'
+							/>
+							<p className='mt-4 text-zinc-500'>No workspaces yet.</p>
+							<Button
+								variant='solid'
+								icon='Add01'
+								className='mt-4'
+								onClick={() => setIsCreateOpen(true)}>
+								Create Your First Workspace
+							</Button>
+						</div>
+					) : (
+						<div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>
+							{workspaces.map((ws) => {
+								const isCurrent = ws.id === currentWorkspace?.id;
+								return (
+									<div
+										key={ws.id}
+										className={`group relative rounded-xl border p-4 transition-all ${
+											isCurrent
+												? 'border-primary-500 bg-primary-50/50 dark:bg-primary-950/20'
+												: 'border-zinc-200 hover:border-zinc-300 dark:border-zinc-700 dark:hover:border-zinc-600'
+										}`}>
+										{isCurrent && (
+											<Badge
+												variant='solid'
 												color='primary'
-												size='text-xl'
-											/>
-										</div>
-										<div>
-											<div className='font-semibold text-zinc-900 dark:text-white'>
-												{ws.name}
-											</div>
-											<div className='text-xs text-zinc-500'>
-												/{ws.slug}
-											</div>
-										</div>
-									</div>
-									<div className='mb-3 flex items-center gap-2'>
-										<Badge
-											variant='outline'
-											color={
-												(ws.role && ROLE_COLORS[ws.role]) ||
-												ROLE_COLORS['viewer' as TWorkspaceRole]
-											}>
-											{ws.role
-												? ws.role.charAt(0).toUpperCase() + ws.role.slice(1)
-												: 'Member'}
-										</Badge>
-										<span className='text-xs text-zinc-400'>
-											Created{' '}
-											{new Date(ws.created_at).toLocaleDateString()}
-										</span>
-									</div>
-									<div className='flex gap-2'>
-										{!isCurrent && (
-											<Button
-												variant='outline'
-												dimension='sm'
-												icon='ArrowRight01'
-												onClick={() => switchWorkspace(ws.id)}>
-												Switch
-											</Button>
+												className='absolute right-3 top-3'>
+												Current
+											</Badge>
 										)}
-										{ws.role === 'owner' && (
-											<Button
+										<div className='mb-3 flex items-center gap-3'>
+											<div className='flex h-10 w-10 items-center justify-center rounded-lg bg-primary-100 dark:bg-primary-900/30'>
+												<Icon
+													icon='DashboardSquare03'
+													color='primary'
+													size='text-xl'
+												/>
+											</div>
+											<div>
+												<div className='font-semibold text-zinc-900 dark:text-white'>
+													{ws.name}
+												</div>
+												<div className='text-xs text-zinc-500'>
+													/{ws.slug}
+												</div>
+											</div>
+										</div>
+										<div className='mb-3 flex items-center gap-2'>
+											<Badge
 												variant='outline'
-												dimension='sm'
-												color='red'
-												icon='Delete02'
-												onClick={() => {
-												setDeleteTarget(ws);
-												setIsDeleteOpen(true);
-											}}>
-												Delete
-											</Button>
-										)}
+												color={
+													(ws.role && ROLE_COLORS[ws.role]) ||
+													ROLE_COLORS['viewer' as TWorkspaceRole]
+												}>
+												{ws.role
+													? ws.role.charAt(0).toUpperCase() + ws.role.slice(1)
+													: 'Member'}
+											</Badge>
+											<span className='text-xs text-zinc-400'>
+												Created{' '}
+												{new Date(ws.created_at).toLocaleDateString()}
+											</span>
+										</div>
+										<div className='flex gap-2'>
+											{!isCurrent && (
+												<Button
+													variant='outline'
+													dimension='sm'
+													icon='ArrowRight01'
+													onClick={() => switchWorkspace(ws.id)}>
+													Switch
+												</Button>
+											)}
+											{ws.role === 'owner' && (
+												<Button
+													variant='outline'
+													dimension='sm'
+													color='red'
+													icon='Delete02'
+													onClick={() => {
+													setDeleteTarget(ws);
+													setIsDeleteOpen(true);
+												}}>
+													Delete
+												</Button>
+											)}
+										</div>
 									</div>
-								</div>
-							);
-						})}
-					</div>
-				)}
-			</div>
+								);
+							})}
+						</div>
+					)}
+				</div>
+			</Container>
 
 			{/* Create Workspace Modal */}
 			<Modal isOpen={isCreateOpen} setIsOpen={setIsCreateOpen}>

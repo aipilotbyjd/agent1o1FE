@@ -332,7 +332,7 @@ const WorkflowsListPage = () => {
 					<SubheaderSeparator />
 					<Button
 						aria-label='New Folder'
-						variant='soft'
+						variant='solid'
 						dimension='sm'
 						icon='FolderAdd'
 						onClick={() => {

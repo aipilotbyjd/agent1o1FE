@@ -185,7 +185,7 @@ const SettingsTeamsPage = () => {
 					<SubheaderSeparator />
 					{canManageMembers(currentUserRole) && (
 						<Button
-							variant='soft'
+							variant='solid'
 							icon='UserAdd02'
 							onClick={() => setIsInviteOpen(true)}>
 							Invite
@@ -202,59 +202,61 @@ const SettingsTeamsPage = () => {
 					)}
 				</SubheaderRight>
 			</Subheader>
-			<div className='mx-auto w-full bg-white px-2 pt-4 pb-2 dark:bg-zinc-950'>
-				{activeTab === 'members' && (
-					<>
-						{membersLoading ? (
-							<div className='flex items-center justify-center py-10'>
-								<p className='text-zinc-500'>Loading members...</p>
-							</div>
-						) : filteredMembers.length === 0 ? (
-							<div className='flex flex-col items-center justify-center py-10'>
-								<Icon icon='UserMultiple' size='text-5xl' color='zinc' />
-								<p className='mt-4 text-zinc-500'>
-									{hasFilters
-										? 'No members match your filters.'
-										: 'No members yet.'}
-								</p>
-							</div>
-						) : (
-							<MembersTable
-								members={filteredMembers}
-								currentUserRole={currentUserRole}
-								currentUserId={currentUserId}
-								onChangeRole={handleChangeRole}
-								onRemove={handleRemoveMember}
-							/>
-						)}
-					</>
-				)}
-				{activeTab === 'invitations' && (
-					<>
-						{invitationsLoading ? (
-							<div className='flex items-center justify-center py-10'>
-								<p className='text-zinc-500'>Loading invitations...</p>
-							</div>
-						) : filteredInvitations.length === 0 ? (
-							<div className='flex flex-col items-center justify-center py-10'>
-								<Icon icon='Mail02' size='text-5xl' color='zinc' />
-								<p className='mt-4 text-zinc-500'>
-									{hasFilters
-										? 'No invitations match your search.'
-										: 'No pending invitations.'}
-								</p>
-							</div>
-						) : (
-							<InvitationsTable
-								invitations={filteredInvitations}
-								currentUserRole={currentUserRole}
-								onCancel={handleCancelInvitation}
-								isCancelling={cancelInvitation.isPending}
-							/>
-						)}
-					</>
-				)}
-			</div>
+			<Container className='flex h-full'>
+				<div className='flex min-w-0 flex-1 flex-col'>
+					{activeTab === 'members' && (
+						<>
+							{membersLoading ? (
+								<div className='flex items-center justify-center py-10'>
+									<p className='text-zinc-500'>Loading members...</p>
+								</div>
+							) : filteredMembers.length === 0 ? (
+								<div className='flex flex-col items-center justify-center py-10'>
+									<Icon icon='UserMultiple' size='text-5xl' color='zinc' />
+									<p className='mt-4 text-zinc-500'>
+										{hasFilters
+											? 'No members match your filters.'
+											: 'No members yet.'}
+									</p>
+								</div>
+							) : (
+								<MembersTable
+									members={filteredMembers}
+									currentUserRole={currentUserRole}
+									currentUserId={currentUserId}
+									onChangeRole={handleChangeRole}
+									onRemove={handleRemoveMember}
+								/>
+							)}
+						</>
+					)}
+					{activeTab === 'invitations' && (
+						<>
+							{invitationsLoading ? (
+								<div className='flex items-center justify-center py-10'>
+									<p className='text-zinc-500'>Loading invitations...</p>
+								</div>
+							) : filteredInvitations.length === 0 ? (
+								<div className='flex flex-col items-center justify-center py-10'>
+									<Icon icon='Mail02' size='text-5xl' color='zinc' />
+									<p className='mt-4 text-zinc-500'>
+										{hasFilters
+											? 'No invitations match your search.'
+											: 'No pending invitations.'}
+									</p>
+								</div>
+							) : (
+								<InvitationsTable
+									invitations={filteredInvitations}
+									currentUserRole={currentUserRole}
+									onCancel={handleCancelInvitation}
+									isCancelling={cancelInvitation.isPending}
+								/>
+							)}
+						</>
+					)}
+				</div>
+			</Container>
 
 			<InviteModal
 				isOpen={isInviteOpen}

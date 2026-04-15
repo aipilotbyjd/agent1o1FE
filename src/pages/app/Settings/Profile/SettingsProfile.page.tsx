@@ -122,7 +122,7 @@ const SettingsProfilePage = () => {
 									</p>
 									<div className='flex gap-2'>
 										<Button
-											variant='outline'
+											variant='solid'
 											dimension='sm'
 											icon='Upload04'
 											isLoading={uploadAvatar.isPending}
