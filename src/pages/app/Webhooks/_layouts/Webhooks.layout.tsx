@@ -1,26 +1,30 @@
 import { Outlet } from 'react-router';
-import { ReactNode, useState } from 'react';
 import Header, { HeaderLeft, HeaderRight } from '@/components/layout/Header';
-import Wrapper from '@/components/layout/Wrapper';
+import { Dispatch, ReactNode, SetStateAction, useState } from 'react';
+import ChangeDarkModeTemplate from '@/templates/header/ChangeDarkMode.template';
+import ChangeLanguageTemplate from '@/templates/header/ChangeLanguage.template';
+import EXAMPLE from '@/examples/_index';
 
-export type OutletContextType = {
-	setHeaderLeft: (node: ReactNode | undefined) => void;
-	setHeaderRight: (node: ReactNode | undefined) => void;
-};
+export interface OutletContextType {
+	headerLeft?: ReactNode;
+	setHeaderLeft: Dispatch<SetStateAction<ReactNode>>;
+}
 
 const WebhooksLayout = () => {
-	const [headerLeft, setHeaderLeft] = useState<ReactNode | undefined>(undefined);
-	const [headerRight, setHeaderRight] = useState<ReactNode | undefined>(undefined);
+	const [headerLeft, setHeaderLeft] = useState('');
 
 	return (
 		<>
 			<Header>
 				<HeaderLeft>{headerLeft}</HeaderLeft>
-				<HeaderRight>{headerRight}</HeaderRight>
+				<HeaderRight>
+					<ChangeDarkModeTemplate />
+					<ChangeLanguageTemplate />
+					<EXAMPLE.Ui.Dropdown.Notifications />
+					<EXAMPLE.Ui.Dropdown.ProjectsWorkspace />
+				</HeaderRight>
 			</Header>
-			<Wrapper>
-				<Outlet context={{ setHeaderLeft, setHeaderRight }} />
-			</Wrapper>
+			<Outlet context={{ headerLeft, setHeaderLeft }} />
 		</>
 	);
 };
