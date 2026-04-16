@@ -126,3 +126,13 @@ export {
 	useFetchWorkspaceSettings,
 	useUpdateWorkspaceSettings,
 } from './useTeam';
+
+export {
+	useFetchAgents,
+	useFetchAgent,
+	useCreateAgent,
+	useUpdateAgent,
+	useDeleteAgent,
+	useDuplicateAgent,
+	useFetchAgentSkills,
+} from './useAgents';

@@ -1169,6 +1169,12 @@ const app = {
 				text: 'Workflows',
 				icon: 'Key02',
 			},
+			agents: {
+				id: 'agents',
+				to: '/app/agents',
+				text: 'Agents',
+				icon: 'Bot',
+			},
 			credentials: {
 				id: 'credentials',
 				to: '/app/credentials',

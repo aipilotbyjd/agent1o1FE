@@ -11,3 +11,4 @@ export { TemplateService } from './template.service';
 export { TagService } from './tag.service';
 export { DashboardService } from './dashboard.service';
 export { WorkspaceMemberService, WorkspaceInvitationService, WorkspaceSettingsService } from './workspace-member.service';
+export { agentService } from './agent.service';

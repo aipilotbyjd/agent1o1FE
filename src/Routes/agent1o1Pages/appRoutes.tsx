@@ -8,6 +8,9 @@ const DashboardListPage = lazy(() => import('@/pages/app/Dashboard/DashboardList
 const WorkflowsLayout = lazy(() => import('@/pages/app/Workflows/_layouts/Workflows.layout'));
 const WorkflowsListPage = lazy(() => import('@/pages/app/Workflows/WorkflowsList.page'));
 
+const AgentsLayout = lazy(() => import('@/pages/app/Agents/_layouts/Agents.layout'));
+const AgentsListPage = lazy(() => import('@/pages/app/Agents/AgentsList.page'));
+
 const CredentialsLayout = lazy(() => import('@/pages/app/Credentials/_layouts/Credentials.layout'));
 const CredentialsListPage = lazy(() => import('@/pages/app/Credentials/CredentialsList.page'));
 const OAuthCallbackPage = lazy(() => import('@/pages/app/OAuthCallback.page'));
@@ -47,6 +50,16 @@ const AppRoutes = [
 			{
 				index: true,
 				element: <WorkflowsListPage />,
+			},
+		],
+	},
+	{
+		path: pages.app.appMain.subPages.agents.to,
+		element: <AgentsLayout />,
+		children: [
+			{
+				index: true,
+				element: <AgentsListPage />,
 			},
 		],
 	},
