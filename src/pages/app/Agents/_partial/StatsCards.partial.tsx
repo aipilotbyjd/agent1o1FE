@@ -65,7 +65,7 @@ const StatsCardsPartial = ({ agents }: IStatsCardsPartialProps) => {
                 <CardBody>
                     <div className='flex items-center gap-3'>
                         <div className='flex h-12 w-12 items-center justify-center rounded-lg bg-violet-100 dark:bg-violet-900/30'>
-                            <Icon icon='Tool02' color='violet' size='text-2xl' />
+                            <Icon icon='Tools' color='violet' size='text-2xl' />
                         </div>
                         <div>
                             <div className='text-2xl font-semibold'>{stats.avgSkills.toFixed(1)}</div>

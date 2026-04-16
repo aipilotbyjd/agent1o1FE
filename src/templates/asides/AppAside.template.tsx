@@ -34,6 +34,7 @@ const AppAsideTemplate = () => {
 					<NavTitle>Menu</NavTitle>
 					<NavItem id='workflows' to='/app/workflows' text='Workflows' icon='GitMerge' />
 					<NavItem {...pages.app.appMain.subPages.agents} />
+					<NavItem {...pages.app.appMain.subPages.skills} />
 					<NavItem {...pages.app.appMain.subPages.credentials} />
 					<NavItem
 						id='executions'

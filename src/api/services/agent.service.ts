@@ -28,6 +28,15 @@ export const agentService = {
 	createSkill: (workspaceId: string, data: Partial<TAgentSkill>) =>
 		axiosClient.post<{ data: TAgentSkill }>(`/workspaces/${workspaceId}/agent-skills`, data),
 
+	updateSkill: (workspaceId: string, skillId: string, data: Partial<TAgentSkill>) =>
+		axiosClient.put<{ data: TAgentSkill }>(
+			`/workspaces/${workspaceId}/agent-skills/${skillId}`,
+			data,
+		),
+
+	deleteSkill: (workspaceId: string, skillId: string) =>
+		axiosClient.delete(`/workspaces/${workspaceId}/agent-skills/${skillId}`),
+
 	attachSkill: (workspaceId: string, agentId: string, skillId: string) =>
 		axiosClient.post(`/workspaces/${workspaceId}/agents/${agentId}/skills/attach`, {
 			skill_id: skillId,

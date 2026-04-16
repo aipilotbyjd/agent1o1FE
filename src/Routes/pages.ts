@@ -1175,6 +1175,12 @@ const app = {
 				text: 'Agents',
 				icon: 'Bot',
 			},
+			skills: {
+				id: 'skills',
+				to: '/app/skills',
+				text: 'Skills',
+				icon: 'Tools',
+			},
 			credentials: {
 				id: 'credentials',
 				to: '/app/credentials',

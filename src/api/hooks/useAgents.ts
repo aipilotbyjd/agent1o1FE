@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { agentService } from '../services/agent.service';
-import type { TAgent } from '@/types/agent.type';
+import type { TAgent } from '../../types/agent.type';
+import type { TAgentSkill } from '@/types/agent.type';
 
 export const useFetchAgents = (workspaceId: string) => {
 	return useQuery({
@@ -68,5 +69,27 @@ export const useFetchAgentSkills = (workspaceId: string) => {
 		queryKey: ['agent-skills', workspaceId],
 		queryFn: () => agentService.listSkills(workspaceId),
 		enabled: !!workspaceId,
+	});
+};
+
+export const useCreateAgentSkill = (workspaceId: string) => {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: (data: Partial<TAgentSkill>) => agentService.createSkill(workspaceId, data),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['agent-skills', workspaceId] });
+		},
+	});
+};
+
+export const useDeleteAgentSkill = (workspaceId: string) => {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: (id: string) => agentService.deleteSkill(workspaceId, id),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['agent-skills', workspaceId] });
+		},
 	});
 };
