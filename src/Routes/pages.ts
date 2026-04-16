@@ -1181,6 +1181,12 @@ const app = {
 				text: 'Skills',
 				icon: 'Tools',
 			},
+			webhooks: {
+				id: 'webhooks',
+				to: '/app/webhooks',
+				text: 'Webhooks',
+				icon: 'Webhook',
+			},
 			credentials: {
 				id: 'credentials',
 				to: '/app/credentials',

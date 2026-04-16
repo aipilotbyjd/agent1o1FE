@@ -138,3 +138,15 @@ export {
 	useCreateAgentSkill,
 	useDeleteAgentSkill,
 } from './useAgents';
+
+export {
+	useFetchWebhooks,
+	useFetchWebhook,
+	useCreateWebhook,
+	useUpdateWebhook,
+	useDeleteWebhook,
+	useActivateWebhook,
+	useDeactivateWebhook,
+	useTestWebhook,
+	useFetchWebhookLogs,
+} from './useWebhooks';

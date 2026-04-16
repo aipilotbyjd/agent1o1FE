@@ -14,6 +14,9 @@ const AgentsListPage = lazy(() => import('@/pages/app/Agents/AgentsList.page'));
 const SkillsLayout = lazy(() => import('@/pages/app/Skills/_layouts/Skills.layout'));
 const SkillsListPage = lazy(() => import('@/pages/app/Skills/SkillsList.page'));
 
+const WebhooksLayout = lazy(() => import('@/pages/app/Webhooks/_layouts/Webhooks.layout'));
+const WebhooksListPage = lazy(() => import('@/pages/app/Webhooks/WebhooksList.page'));
+
 const CredentialsLayout = lazy(() => import('@/pages/app/Credentials/_layouts/Credentials.layout'));
 const CredentialsListPage = lazy(() => import('@/pages/app/Credentials/CredentialsList.page'));
 const OAuthCallbackPage = lazy(() => import('@/pages/app/OAuthCallback.page'));
@@ -73,6 +76,16 @@ const AppRoutes = [
 			{
 				index: true,
 				element: <SkillsListPage />,
+			},
+		],
+	},
+	{
+		path: pages.app.appMain.subPages.webhooks.to,
+		element: <WebhooksLayout />,
+		children: [
+			{
+				index: true,
+				element: <WebhooksListPage />,
 			},
 		],
 	},
