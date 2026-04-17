@@ -36,8 +36,9 @@ export const useUpdateAgent = (workspaceId: string) => {
 	return useMutation({
 		mutationFn: ({ id, data }: { id: string; data: Partial<TAgent> }) =>
 			agentService.update(workspaceId, id, data),
-		onSuccess: () => {
+		onSuccess: (_, variables) => {
 			queryClient.invalidateQueries({ queryKey: ['agents', workspaceId] });
+			queryClient.invalidateQueries({ queryKey: ['agents', workspaceId, variables.id] });
 		},
 	});
 };
@@ -89,6 +90,38 @@ export const useDeleteAgentSkill = (workspaceId: string) => {
 	return useMutation({
 		mutationFn: (id: string) => agentService.deleteSkill(workspaceId, id),
 		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['agent-skills', workspaceId] });
+		},
+	});
+};
+
+export const useAttachAgentSkill = (workspaceId: string) => {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: ({ agentId, skillId }: { agentId: string; skillId: string }) =>
+			agentService.attachSkill(workspaceId, agentId, skillId),
+		onSuccess: (_, variables) => {
+			queryClient.invalidateQueries({ queryKey: ['agents', workspaceId] });
+			queryClient.invalidateQueries({
+				queryKey: ['agents', workspaceId, variables.agentId],
+			});
+			queryClient.invalidateQueries({ queryKey: ['agent-skills', workspaceId] });
+		},
+	});
+};
+
+export const useDetachAgentSkill = (workspaceId: string) => {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: ({ agentId, skillId }: { agentId: string; skillId: string }) =>
+			agentService.detachSkill(workspaceId, agentId, skillId),
+		onSuccess: (_, variables) => {
+			queryClient.invalidateQueries({ queryKey: ['agents', workspaceId] });
+			queryClient.invalidateQueries({
+				queryKey: ['agents', workspaceId, variables.agentId],
+			});
 			queryClient.invalidateQueries({ queryKey: ['agent-skills', workspaceId] });
 		},
 	});

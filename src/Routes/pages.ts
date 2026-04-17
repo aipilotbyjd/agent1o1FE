@@ -1174,6 +1174,20 @@ const app = {
 				to: '/app/agents',
 				text: 'Agents',
 				icon: 'Bot',
+				subPages: {
+					new: {
+						id: 'newAgent',
+						to: '/app/agents/new',
+						text: 'New Agent',
+						icon: 'PlusSignCircle',
+					},
+					edit: {
+						id: 'editAgent',
+						to: '/app/agents/:agentId/edit',
+						text: 'Edit Agent',
+						icon: 'PencilEdit02',
+					},
+				},
 			},
 			skills: {
 				id: 'skills',

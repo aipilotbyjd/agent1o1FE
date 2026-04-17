@@ -10,6 +10,7 @@ const WorkflowsListPage = lazy(() => import('@/pages/app/Workflows/WorkflowsList
 
 const AgentsLayout = lazy(() => import('@/pages/app/Agents/_layouts/Agents.layout'));
 const AgentsListPage = lazy(() => import('@/pages/app/Agents/AgentsList.page'));
+const AgentBuilderPage = lazy(() => import('@/pages/app/Agents/AgentBuilder.page'));
 
 const SkillsLayout = lazy(() => import('@/pages/app/Skills/_layouts/Skills.layout'));
 const SkillsListPage = lazy(() => import('@/pages/app/Skills/SkillsList.page'));
@@ -66,6 +67,14 @@ const AppRoutes = [
 			{
 				index: true,
 				element: <AgentsListPage />,
+			},
+			{
+				path: pages.app.appMain.subPages.agents.subPages.new.to,
+				element: <AgentBuilderPage />,
+			},
+			{
+				path: pages.app.appMain.subPages.agents.subPages.edit.to,
+				element: <AgentBuilderPage />,
 			},
 		],
 	},

@@ -22,13 +22,11 @@ import {
 	useDeleteAgent,
 	useDuplicateAgent,
 	useUpdateAgent,
-	useCreateAgent,
 } from '@/api/hooks/useAgents';
 import type { TAgent } from '@/types/agent.type';
 
 import StatsCardsPartial from './_partial/StatsCards.partial';
 import EmptyStatePartial from './_partial/EmptyState.partial';
-import AgentModalPartial from './_partial/AgentModal.partial';
 import SkillsModalPartial from './_partial/SkillsModal.partial';
 import { LoadingStatePartial, ErrorStatePartial } from './_partial/States.partial';
 
@@ -39,8 +37,6 @@ const AgentsListPage = () => {
 	// ─── State ────────────────────────────────────────────
 	const [searchQuery, setSearchQuery] = useState('');
 	const [statusFilter, setStatusFilter] = useState<'active' | 'inactive' | ''>('');
-	const [isModalOpen, setIsModalOpen] = useState(false);
-	const [editingAgent, setEditingAgent] = useState<TAgent | null>(null);
 	const [isSkillsModalOpen, setIsSkillsModalOpen] = useState(false);
 	const [managingSkillsAgentId, setManagingSkillsAgentId] = useState<string | null>(null);
 
@@ -54,23 +50,31 @@ const AgentsListPage = () => {
 	}, []);
 
 	// ─── API Hooks ────────────────────────────────────────
-	const {
-		data: agentsData,
-		isLoading,
-		isError,
-		refetch,
-	} = useFetchAgents(workspaceId || '');
+	const { data: agentsData, isLoading, isError, refetch } = useFetchAgents(workspaceId || '');
 
 	const deleteAgent = useDeleteAgent(workspaceId || '');
 	const duplicateAgent = useDuplicateAgent(workspaceId || '');
 	const updateAgent = useUpdateAgent(workspaceId || '');
-	const createAgent = useCreateAgent(workspaceId || '');
 
 	// ─── Derived Data ─────────────────────────────────────
 	const agents: TAgent[] = useMemo(() => {
-		if (!agentsData) return [];
-		if (Array.isArray(agentsData)) return agentsData;
-		if ('data' in agentsData && Array.isArray(agentsData.data)) return agentsData.data;
+		const response = agentsData as unknown;
+		if (Array.isArray(response)) return response as TAgent[];
+
+		const firstPayload =
+			typeof response === 'object' && response !== null && 'data' in response
+				? (response as { data?: unknown }).data
+				: undefined;
+
+		if (Array.isArray(firstPayload)) return firstPayload as TAgent[];
+
+		const secondPayload =
+			typeof firstPayload === 'object' && firstPayload !== null && 'data' in firstPayload
+				? (firstPayload as { data?: unknown }).data
+				: undefined;
+
+		if (Array.isArray(secondPayload)) return secondPayload as TAgent[];
+
 		return [];
 	}, [agentsData]);
 
@@ -87,9 +91,7 @@ const AgentsListPage = () => {
 		}
 
 		if (statusFilter) {
-			result = result.filter((a) =>
-				statusFilter === 'active' ? a.is_active : !a.is_active,
-			);
+			result = result.filter((a) => (statusFilter === 'active' ? a.is_active : !a.is_active));
 		}
 
 		return result;
@@ -98,26 +100,6 @@ const AgentsListPage = () => {
 	const hasFilters = searchQuery || statusFilter;
 
 	// ─── Handlers ─────────────────────────────────────────
-	const handleOpenCreateModal = () => {
-		setEditingAgent(null);
-		setIsModalOpen(true);
-	};
-
-	const handleOpenEditModal = (agent: TAgent) => {
-		setEditingAgent(agent);
-		setIsModalOpen(true);
-	};
-
-	const handleModalSubmit = async (values: Partial<TAgent>) => {
-		if (editingAgent) {
-			await updateAgent.mutateAsync({ id: editingAgent.id, data: values });
-		} else {
-			await createAgent.mutateAsync(values);
-		}
-		setIsModalOpen(false);
-		setEditingAgent(null);
-	};
-
 	const handleOpenSkillsModal = (agentId: string) => {
 		setManagingSkillsAgentId(agentId);
 		setIsSkillsModalOpen(true);
@@ -207,7 +189,7 @@ const AgentsListPage = () => {
 						aria-label='New Agent'
 						variant='solid'
 						icon='PlusSignCircle'
-						onClick={handleOpenCreateModal}>
+						onClick={() => navigate('/app/agents/new')}>
 						New Agent
 					</Button>
 				</SubheaderRight>
@@ -227,7 +209,7 @@ const AgentsListPage = () => {
 						<EmptyStatePartial
 							hasFilters={!!hasFilters}
 							onClearFilters={clearFilters}
-							onCreate={handleOpenCreateModal}
+							onCreate={() => navigate('/app/agents/new')}
 						/>
 					) : (
 						<div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>
@@ -236,7 +218,7 @@ const AgentsListPage = () => {
 									<CardBody>
 										<div className='flex items-start justify-between'>
 											<div className='flex items-center gap-3'>
-												<div className='flex h-10 w-10 items-center justify-center rounded-lg bg-primary-100 dark:bg-primary-900/30'>
+												<div className='bg-primary-100 dark:bg-primary-900/30 flex h-10 w-10 items-center justify-center rounded-lg'>
 													<Icon
 														icon='Bot'
 														color='primary'
@@ -265,7 +247,7 @@ const AgentsListPage = () => {
 													<DropdownItem
 														icon='PencilEdit02'
 														onClick={() =>
-															handleOpenEditModal(agent)
+															navigate(`/app/agents/${agent.id}/edit`)
 														}>
 														Edit
 													</DropdownItem>
@@ -346,7 +328,9 @@ const AgentsListPage = () => {
 												dimension='sm'
 												icon='PencilEdit02'
 												className='flex-1'
-												onClick={() => handleOpenEditModal(agent)}>
+												onClick={() =>
+													navigate(`/app/agents/${agent.id}/edit`)
+												}>
 												Edit
 											</Button>
 										</div>
@@ -358,18 +342,6 @@ const AgentsListPage = () => {
 				</div>
 			</Container>
 
-			{/* Agent Modal */}
-			<AgentModalPartial
-				isOpen={isModalOpen}
-				onClose={() => {
-					setIsModalOpen(false);
-					setEditingAgent(null);
-				}}
-				onSubmit={handleModalSubmit}
-				isLoading={createAgent.isPending || updateAgent.isPending}
-				agent={editingAgent}
-			/>
-
 			{/* Skills Modal */}
 			{managingSkillsAgentId && (
 				<SkillsModalPartial
@@ -380,9 +352,7 @@ const AgentsListPage = () => {
 					}}
 					agentId={managingSkillsAgentId}
 					attachedSkillIds={
-						agents.find((a) => a.id === managingSkillsAgentId)?.skills_count
-							? []
-							: []
+						agents.find((a) => a.id === managingSkillsAgentId)?.skills_count ? [] : []
 					}
 					onAttachSkill={handleAttachSkill}
 					onDetachSkill={handleDetachSkill}

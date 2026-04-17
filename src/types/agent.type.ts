@@ -9,6 +9,7 @@ export type TAgent = {
 	is_active: boolean;
 	skills_count: number;
 	conversations_count: number;
+	skills?: TAgentSkill[];
 	created_at: number;
 	updated_at: number;
 };
@@ -18,7 +19,7 @@ export type TAgentSkill = {
 	name: string;
 	type: 'api_call' | 'vector_search' | 'workflow' | 'script';
 	description: string;
-	config: Record<string, any>;
+	config: Record<string, unknown>;
 	created_at: number;
 };
 
