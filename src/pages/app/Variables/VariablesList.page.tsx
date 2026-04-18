@@ -13,8 +13,14 @@ import Button from '@/components/ui/Button';
 import { SortingState } from '@tanstack/react-table';
 import { toast } from 'react-toastify';
 
-import { useFetchVariables, useDeleteVariable } from '@/api';
-import { IVariable, TVariableSortBy, TSortOrder } from '@/types/variable.type';
+import { useCreateVariable, useFetchVariables, useDeleteVariable, useUpdateVariable } from '@/api';
+import {
+	ICreateVariableDto,
+	IUpdateVariableDto,
+	IVariable,
+	TVariableSortBy,
+	TSortOrder,
+} from '@/types/variable.type';
 import { useCurrentWorkspaceId } from '@/context/workspaceContext';
 
 // Partials
@@ -22,6 +28,7 @@ import FiltersPartial from './_partial/Filters.partial';
 import TablePartial from './_partial/Table.partial';
 import EmptyStatePartial from './_partial/EmptyState.partial';
 import { LoadingStatePartial, ErrorStatePartial } from './_partial/States.partial';
+import VariableModalPartial from './_partial/VariableModal.partial';
 
 export interface OutletContextType {
 	headerLeft?: React.ReactNode;
@@ -37,6 +44,8 @@ const VariablesListPage = () => {
 	const [scopeFilter, setScopeFilter] = useState<string | null>(null);
 	const [sortBy, setSortBy] = useState<TVariableSortBy>('created_at');
 	const [sortOrder, setSortOrder] = useState<TSortOrder>('desc');
+	const [isVariableModalOpen, setIsVariableModalOpen] = useState(false);
+	const [editingVariable, setEditingVariable] = useState<IVariable | null>(null);
 
 	// Table sorting state
 	const [sorting, setSorting] = useState<SortingState>([{ id: 'created_at', desc: true }]);
@@ -57,6 +66,8 @@ const VariablesListPage = () => {
 
 	// API hooks
 	const { data: variables, isLoading, isError, refetch } = useFetchVariables(workspaceId, filters);
+	const createVariable = useCreateVariable(workspaceId);
+	const updateVariable = useUpdateVariable(workspaceId);
 	const deleteVariable = useDeleteVariable(workspaceId);
 
 	const { setHeaderLeft } = useOutletContext<OutletContextType>();
@@ -78,8 +89,29 @@ const VariablesListPage = () => {
 		}
 	};
 
-	const handleEdit = () => {
-		toast.info('Edit functionality coming soon');
+	const handleOpenCreate = () => {
+		setEditingVariable(null);
+		setIsVariableModalOpen(true);
+	};
+
+	const handleEdit = (variable: IVariable) => {
+		setEditingVariable(variable);
+		setIsVariableModalOpen(true);
+	};
+
+	const handleVariableSubmit = async (
+		values: ICreateVariableDto | IUpdateVariableDto,
+	) => {
+		if (editingVariable) {
+			await updateVariable.mutateAsync({
+				id: editingVariable.id,
+				dto: values as IUpdateVariableDto,
+			});
+		} else {
+			await createVariable.mutateAsync(values as ICreateVariableDto);
+		}
+		setIsVariableModalOpen(false);
+		setEditingVariable(null);
 	};
 
 	const clearAllFilters = () => {
@@ -129,7 +161,7 @@ const VariablesListPage = () => {
 						aria-label='New Variable'
 						variant='solid'
 						icon='PlusSignCircle'
-						onClick={() => toast.info('Add variable coming soon')}>
+						onClick={handleOpenCreate}>
 						Create Variable
 					</Button>
 				</SubheaderRight>
@@ -144,7 +176,7 @@ const VariablesListPage = () => {
 						<EmptyStatePartial
 							hasFilters={!!hasFilters}
 							onClearFilters={clearAllFilters}
-							onAddNew={() => toast.info('Add variable coming soon')}
+							onAddNew={handleOpenCreate}
 						/>
 					) : (
 						<TablePartial
@@ -157,6 +189,16 @@ const VariablesListPage = () => {
 					)}
 				</div>
 			</Container>
+			<VariableModalPartial
+				isOpen={isVariableModalOpen}
+				onClose={() => {
+					setIsVariableModalOpen(false);
+					setEditingVariable(null);
+				}}
+				onSubmit={handleVariableSubmit}
+				variable={editingVariable}
+				isLoading={createVariable.isPending || updateVariable.isPending}
+			/>
 		</>
 	);
 };

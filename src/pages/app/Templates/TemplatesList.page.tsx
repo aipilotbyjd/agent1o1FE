@@ -1,4 +1,4 @@
-import { useOutletContext } from 'react-router';
+import { useNavigate, useOutletContext } from 'react-router';
 import { useEffect, useState, useMemo } from 'react';
 import Container from '@/components/layout/Container';
 import Subheader, {
@@ -11,7 +11,8 @@ import Icon from '@/components/icon/Icon';
 import Button from '@/components/ui/Button';
 import { toast } from 'react-toastify';
 
-import { useFetchTemplates } from '@/api';
+import { useFetchTemplates, useUseTemplate } from '@/api';
+import { useCurrentWorkspaceId } from '@/context/workspaceContext';
 import { ITemplate, TTemplateCategory, TTemplateSortBy, TSortOrder } from '@/types/template.type';
 
 // Partials
@@ -27,6 +28,9 @@ export interface OutletContextType {
 }
 
 const TemplatesListPage = () => {
+	const navigate = useNavigate();
+	const workspaceId = useCurrentWorkspaceId();
+
 	// Filter state
 	const [searchQuery, setSearchQuery] = useState('');
 	const [categoryFilter, setCategoryFilter] = useState<TTemplateCategory | ''>('');
@@ -36,7 +40,6 @@ const TemplatesListPage = () => {
 	// Modal state
 	const [selectedTemplate, setSelectedTemplate] = useState<ITemplate | null>(null);
 	const [isModalOpen, setIsModalOpen] = useState(false);
-	const [isUsing, setIsUsing] = useState(false);
 
 	// Check if any filter is active
 	const hasFilters = searchQuery || categoryFilter;
@@ -52,8 +55,9 @@ const TemplatesListPage = () => {
 		[searchQuery, categoryFilter, sortBy, sortOrder],
 	);
 
-	// API hooks - using mock data for now
+	// API hooks
 	const { data: templates, isLoading, isError, refetch } = useFetchTemplates(filters);
+	const useTemplate = useUseTemplate();
 
 	const { setHeaderLeft } = useOutletContext<OutletContextType>();
 
@@ -74,16 +78,19 @@ const TemplatesListPage = () => {
 	};
 
 	const handleUseTemplate = async (_template: ITemplate, workflowName: string) => {
-		setIsUsing(true);
-		try {
-			// Simulate API call
-			await new Promise((resolve) => setTimeout(resolve, 1000));
-			toast.success(`Created workflow "${workflowName}" from template`);
-			handleModalClose();
-		} catch (error) {
-			toast.error('Failed to create workflow from template');
-		} finally {
-			setIsUsing(false);
+		if (!workspaceId) {
+			toast.error('Select a workspace before using a template');
+			return;
+		}
+
+		const result = await useTemplate.mutateAsync({
+			workspaceId,
+			templateId: _template.id,
+			workflowName,
+		});
+		handleModalClose();
+		if (result.workflow_id) {
+			navigate(`/app/story-builder/${result.workflow_id}`);
 		}
 	};
 
@@ -159,7 +166,7 @@ const TemplatesListPage = () => {
 				isOpen={isModalOpen}
 				onClose={handleModalClose}
 				onUse={handleUseTemplate}
-				isUsing={isUsing}
+				isUsing={useTemplate.isPending}
 			/>
 		</>
 	);

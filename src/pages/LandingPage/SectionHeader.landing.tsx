@@ -111,7 +111,7 @@ const SectionHeaderLanding = () => {
 							onClick={() =>
 								navigate(`${pages.apps.customer.subPages.view.to}?customerId=16`)
 							}>
-							Hi {userData?.firstName},
+							Hi {userData?.name},
 						</Button>
 					)}
 					<a

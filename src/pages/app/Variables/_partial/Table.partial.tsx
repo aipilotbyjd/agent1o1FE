@@ -72,12 +72,19 @@ const TablePartial: FC<ITablePartialProps> = ({
 					const value = info.getValue();
 					const truncatedValue =
 						value.length > 50 ? `${value.substring(0, 50)}...` : value;
+					const displayValue = variable.is_secret ? '************' : truncatedValue;
 
 					return (
 						<div className='flex items-center gap-2'>
 							<code className='rounded bg-zinc-100 px-2 py-1 font-mono text-sm text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'>
-								{truncatedValue}
+								{displayValue}
 							</code>
+							{variable.is_secret && (
+								<Badge variant='soft' color='amber' className='gap-1'>
+									<Icon icon='SquareLock01' size='text-xs' />
+									Secret
+								</Badge>
+							)}
 							<Tooltip text='Copy value'>
 								<Button
 									aria-label='Copy'

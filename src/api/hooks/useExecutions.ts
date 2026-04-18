@@ -14,7 +14,7 @@ export const useFetchExecutions = (workspaceId: string, params?: TListParams) =>
 
 export const useFetchExecutionById = (workspaceId: string, id: string) =>
 	useQuery({
-		queryKey: queryKeys.executions.detail(id),
+		queryKey: queryKeys.executions.detail(workspaceId, id),
 		queryFn: () => ExecutionService.fetchById(workspaceId, id),
 		enabled: !!workspaceId && !!id,
 	});

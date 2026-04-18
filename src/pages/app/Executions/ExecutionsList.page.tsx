@@ -29,17 +29,9 @@ export interface OutletContextType {
 	setHeaderLeft: (value: React.ReactNode) => void;
 }
 
-interface IExecutionFilters {
-	search?: string;
-	status?: string;
-	trigger_type?: string;
-	sort_by: TExecutionSortBy;
-	order: TSortOrder;
-}
-
 const ExecutionsListPage = () => {
 	// Get active workspace ID
-	const workspaceId = useCurrentWorkspaceId() || undefined;
+	const workspaceId = useCurrentWorkspaceId() || '';
 
 	// Filter state
 	const [searchQuery, setSearchQuery] = useState('');

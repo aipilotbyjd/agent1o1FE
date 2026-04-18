@@ -84,6 +84,19 @@ export const useCreateAgentSkill = (workspaceId: string) => {
 	});
 };
 
+export const useUpdateAgentSkill = (workspaceId: string) => {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: ({ id, data }: { id: string; data: Partial<TAgentSkill> }) =>
+			agentService.updateSkill(workspaceId, id, data),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['agent-skills', workspaceId] });
+			queryClient.invalidateQueries({ queryKey: ['agents', workspaceId] });
+		},
+	});
+};
+
 export const useDeleteAgentSkill = (workspaceId: string) => {
 	const queryClient = useQueryClient();
 

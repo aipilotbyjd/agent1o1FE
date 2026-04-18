@@ -12,8 +12,29 @@ import Icon from '@/components/icon/Icon';
 import Button from '@/components/ui/Button';
 import { SortingState } from '@tanstack/react-table';
 
-import { useFetchCredentials, useDeleteCredential, useTestCredential } from '@/api';
-import { ICredential, ICredentialFilters, TCredentialType, TCredentialSortBy, TSortOrder } from '@/types/credential.type';
+import {
+	useCreateCredential,
+	useFetchCredential,
+	useFetchCredentials,
+	useDeleteCredential,
+	useShareCredential,
+	useTestCredential,
+	useUnshareCredential,
+	useUpdateCredential,
+	useUpdateSharingScope,
+} from '@/api';
+import { useFetchMembers } from '@/api/hooks/useTeam';
+import { useAuth } from '@/context/authContext';
+import {
+	ICredential,
+	ICredentialFilters,
+	ICreateCredentialDto,
+	IUpdateCredentialDto,
+	TCredentialType,
+	TCredentialSortBy,
+	TSortOrder,
+	TSharingScope,
+} from '@/types/credential.type';
 import { toast } from 'react-toastify';
 import { useCurrentWorkspaceId } from '@/context/workspaceContext';
 
@@ -22,6 +43,8 @@ import FiltersPartial from './_partial/Filters.partial';
 import TablePartial from './_partial/Table.partial';
 import EmptyStatePartial from './_partial/EmptyState.partial';
 import { LoadingStatePartial, ErrorStatePartial } from './_partial/States.partial';
+import CredentialModalPartial from './_partial/CredentialModal.partial';
+import CredentialShareModalPartial from './_partial/CredentialShareModal.partial';
 
 export interface OutletContextType {
 	headerLeft?: React.ReactNode;
@@ -31,12 +54,16 @@ export interface OutletContextType {
 const CredentialsListPage = () => {
 	// Get active workspace from context
 	const workspaceId = useCurrentWorkspaceId() || undefined;
+	const { userData } = useAuth();
 
 	// Filter state
 	const [searchQuery, setSearchQuery] = useState('');
 	const [typeFilter, setTypeFilter] = useState<TCredentialType | ''>('');
 	const [sortBy, setSortBy] = useState<TCredentialSortBy>('created_at');
 	const [sortOrder, setSortOrder] = useState<TSortOrder>('desc');
+	const [isCredentialModalOpen, setIsCredentialModalOpen] = useState(false);
+	const [editingCredential, setEditingCredential] = useState<ICredential | null>(null);
+	const [sharingCredential, setSharingCredential] = useState<ICredential | null>(null);
 
 	// Table sorting state
 	const [sorting, setSorting] = useState<SortingState>([{ id: 'created_at', desc: true }]);
@@ -57,8 +84,20 @@ const CredentialsListPage = () => {
 
 	// API hooks
 	const { data: credentials, isLoading, isError, refetch } = useFetchCredentials(workspaceId, filters);
+	const { data: credentialDetail, isLoading: isCredentialDetailLoading } = useFetchCredential(
+		workspaceId,
+		editingCredential?.id,
+	);
+	const { data: sharingCredentialDetail, isLoading: isSharingCredentialDetailLoading } =
+		useFetchCredential(workspaceId, sharingCredential?.id);
+	const { data: members = [] } = useFetchMembers(workspaceId);
+	const createCredential = useCreateCredential(workspaceId);
+	const updateCredential = useUpdateCredential(workspaceId);
 	const deleteCredential = useDeleteCredential(workspaceId);
 	const testCredential = useTestCredential(workspaceId);
+	const shareCredentialMutation = useShareCredential(workspaceId);
+	const unshareCredentialMutation = useUnshareCredential(workspaceId);
+	const updateSharingScope = useUpdateSharingScope(workspaceId);
 
 	const { setHeaderLeft } = useOutletContext<OutletContextType>();
 
@@ -88,8 +127,65 @@ const CredentialsListPage = () => {
 		}
 	};
 
-	const handleEdit = () => {
-		toast.info('Edit functionality coming soon');
+	const handleOpenCreate = () => {
+		setEditingCredential(null);
+		setIsCredentialModalOpen(true);
+	};
+
+	const handleEdit = (credential: ICredential) => {
+		setEditingCredential(credential);
+		setIsCredentialModalOpen(true);
+	};
+
+	const handleCredentialSubmit = async (
+		values: ICreateCredentialDto | IUpdateCredentialDto,
+	) => {
+		if (editingCredential) {
+			await updateCredential.mutateAsync({
+				id: editingCredential.id,
+				dto: values as IUpdateCredentialDto,
+			});
+		} else {
+			await createCredential.mutateAsync(values as ICreateCredentialDto);
+		}
+		setIsCredentialModalOpen(false);
+		setEditingCredential(null);
+	};
+
+	const handleShareSubmit = async ({
+		sharing_scope,
+		user_ids,
+		revoke_user_ids,
+	}: {
+		sharing_scope: TSharingScope;
+		user_ids: string[];
+		revoke_user_ids: string[];
+	}) => {
+		if (!sharingCredential) return;
+
+		await updateSharingScope.mutateAsync({
+			id: sharingCredential.id,
+			dto: { sharing_scope },
+		});
+
+		if (sharing_scope === 'specific') {
+			if (user_ids.length > 0) {
+				await shareCredentialMutation.mutateAsync({
+					id: sharingCredential.id,
+					dto: { user_ids },
+				});
+			}
+			await Promise.all(
+				revoke_user_ids.map((userId) =>
+					unshareCredentialMutation.mutateAsync({
+						id: sharingCredential.id,
+						userId,
+					}),
+				),
+			);
+		}
+
+		setSharingCredential(null);
 	};
 
 	const clearAllFilters = () => {
@@ -139,7 +235,7 @@ const CredentialsListPage = () => {
 						aria-label='New Credential'
 						variant='solid'
 						icon='PlusSignCircle'
-						onClick={() => toast.info('Add credential coming soon')}>
+						onClick={handleOpenCreate}>
 						New Credential
 					</Button>
 				</SubheaderRight>
@@ -154,7 +250,7 @@ const CredentialsListPage = () => {
 						<EmptyStatePartial
 							hasFilters={!!hasFilters}
 							onClearFilters={clearAllFilters}
-							onAddNew={() => toast.info('Add credential coming soon')}
+							onAddNew={handleOpenCreate}
 						/>
 					) : (
 						<TablePartial
@@ -164,10 +260,37 @@ const CredentialsListPage = () => {
 							onEdit={handleEdit}
 							onTest={handleTest}
 							onDelete={handleDelete}
+							onShare={(credential) => setSharingCredential(credential)}
 						/>
 					)}
 				</div>
 			</Container>
+			<CredentialModalPartial
+				isOpen={isCredentialModalOpen}
+				onClose={() => {
+					setIsCredentialModalOpen(false);
+					setEditingCredential(null);
+				}}
+				onSubmit={handleCredentialSubmit}
+				credential={credentialDetail}
+				isEditing={!!editingCredential}
+				isLoading={createCredential.isPending || updateCredential.isPending}
+				isDetailLoading={!!editingCredential && isCredentialDetailLoading}
+			/>
+			<CredentialShareModalPartial
+				isOpen={!!sharingCredential}
+				onClose={() => setSharingCredential(null)}
+				credential={sharingCredentialDetail || sharingCredential}
+				members={members}
+				currentUserId={userData?.id}
+				isLoading={
+					isSharingCredentialDetailLoading ||
+					shareCredentialMutation.isPending ||
+					unshareCredentialMutation.isPending ||
+					updateSharingScope.isPending
+				}
+				onSubmit={handleShareSubmit}
+			/>
 		</>
 	);
 };

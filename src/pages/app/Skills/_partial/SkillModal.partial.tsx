@@ -99,6 +99,11 @@ const SkillModalPartial: FC<ISkillModalPartialProps> = ({
 	};
 
 	const selectedSkillType = SKILL_TYPES.find((t) => t.value === formik.values.type);
+	const getConfigValue = (key: string, fallback: string = '') => {
+		const value = formik.values.config[key];
+		if (typeof value === 'string' || typeof value === 'number') return String(value);
+		return fallback;
+	};
 
 	return (
 		<Modal isOpen={isOpen} setIsOpen={handleClose} size='lg'>
@@ -206,7 +211,7 @@ const SkillModalPartial: FC<ISkillModalPartialProps> = ({
 										id='endpoint'
 										name='endpoint'
 										placeholder='https://api.example.com/endpoint'
-										value={formik.values.config.endpoint || ''}
+										value={getConfigValue('endpoint')}
 										onChange={(e) =>
 											formik.setFieldValue('config.endpoint', e.target.value)
 										}
@@ -217,7 +222,7 @@ const SkillModalPartial: FC<ISkillModalPartialProps> = ({
 									<Select
 										id='method'
 										name='method'
-										value={formik.values.config.method || 'GET'}
+										value={getConfigValue('method', 'GET')}
 										onChange={(e) =>
 											formik.setFieldValue('config.method', e.target.value)
 										}>
@@ -240,7 +245,7 @@ const SkillModalPartial: FC<ISkillModalPartialProps> = ({
 										id='collection'
 										name='collection'
 										placeholder='knowledge-base'
-										value={formik.values.config.collection || ''}
+										value={getConfigValue('collection')}
 										onChange={(e) =>
 											formik.setFieldValue(
 												'config.collection',
@@ -256,7 +261,7 @@ const SkillModalPartial: FC<ISkillModalPartialProps> = ({
 										id='top_k'
 										name='top_k'
 										placeholder='5'
-										value={formik.values.config.top_k || 5}
+										value={getConfigValue('top_k', '5')}
 										onChange={(e) =>
 											formik.setFieldValue('config.top_k', e.target.value)
 										}
@@ -274,7 +279,7 @@ const SkillModalPartial: FC<ISkillModalPartialProps> = ({
 										id='workflow_id'
 										name='workflow_id'
 										placeholder='workflow-uuid'
-										value={formik.values.config.workflow_id || ''}
+										value={getConfigValue('workflow_id')}
 										onChange={(e) =>
 											formik.setFieldValue(
 												'config.workflow_id',
@@ -294,7 +299,7 @@ const SkillModalPartial: FC<ISkillModalPartialProps> = ({
 									<Select
 										id='language'
 										name='language'
-										value={formik.values.config.language || 'python'}
+										value={getConfigValue('language', 'python')}
 										onChange={(e) =>
 											formik.setFieldValue('config.language', e.target.value)
 										}>
@@ -309,7 +314,7 @@ const SkillModalPartial: FC<ISkillModalPartialProps> = ({
 										id='code'
 										name='code'
 										placeholder='# Your code here'
-										value={formik.values.config.code || ''}
+										value={getConfigValue('code')}
 										onChange={(e) =>
 											formik.setFieldValue('config.code', e.target.value)
 										}

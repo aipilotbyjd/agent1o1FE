@@ -18,8 +18,11 @@ import Card, { CardBody } from '@/components/ui/Card';
 import Dropdown, { DropdownItem, DropdownMenu, DropdownToggle } from '@/components/ui/Dropdown';
 import { useCurrentWorkspaceId } from '@/context/workspaceContext';
 import {
+	useAttachAgentSkill,
 	useFetchAgents,
+	useFetchAgent,
 	useDeleteAgent,
+	useDetachAgentSkill,
 	useDuplicateAgent,
 	useUpdateAgent,
 } from '@/api/hooks/useAgents';
@@ -51,10 +54,16 @@ const AgentsListPage = () => {
 
 	// ─── API Hooks ────────────────────────────────────────
 	const { data: agentsData, isLoading, isError, refetch } = useFetchAgents(workspaceId || '');
+	const { data: managingAgentData } = useFetchAgent(
+		workspaceId || '',
+		managingSkillsAgentId || '',
+	);
 
 	const deleteAgent = useDeleteAgent(workspaceId || '');
 	const duplicateAgent = useDuplicateAgent(workspaceId || '');
 	const updateAgent = useUpdateAgent(workspaceId || '');
+	const attachSkill = useAttachAgentSkill(workspaceId || '');
+	const detachSkill = useDetachAgentSkill(workspaceId || '');
 
 	// ─── Derived Data ─────────────────────────────────────
 	const agents: TAgent[] = useMemo(() => {
@@ -77,6 +86,25 @@ const AgentsListPage = () => {
 
 		return [];
 	}, [agentsData]);
+
+	const managingAgent = useMemo(() => {
+		const response = managingAgentData as unknown;
+		if (!response) return null;
+
+		const firstPayload =
+			typeof response === 'object' && response !== null && 'data' in response
+				? (response as { data?: unknown }).data
+				: response;
+
+		const secondPayload =
+			typeof firstPayload === 'object' && firstPayload !== null && 'data' in firstPayload
+				? (firstPayload as { data?: unknown }).data
+				: firstPayload;
+
+		return typeof secondPayload === 'object' && secondPayload !== null
+			? (secondPayload as TAgent)
+			: null;
+	}, [managingAgentData]);
 
 	const filteredAgents = useMemo(() => {
 		let result = [...agents];
@@ -107,14 +135,12 @@ const AgentsListPage = () => {
 
 	const handleAttachSkill = async (skillId: string) => {
 		if (!managingSkillsAgentId || !workspaceId) return;
-		// TODO: Implement attach skill API call
-		console.log('Attach skill', skillId, 'to agent', managingSkillsAgentId);
+		await attachSkill.mutateAsync({ agentId: managingSkillsAgentId, skillId });
 	};
 
 	const handleDetachSkill = async (skillId: string) => {
 		if (!managingSkillsAgentId || !workspaceId) return;
-		// TODO: Implement detach skill API call
-		console.log('Detach skill', skillId, 'from agent', managingSkillsAgentId);
+		await detachSkill.mutateAsync({ agentId: managingSkillsAgentId, skillId });
 	};
 
 	const handleToggleStatus = (id: string, currentStatus: boolean) => {
@@ -352,10 +378,13 @@ const AgentsListPage = () => {
 					}}
 					agentId={managingSkillsAgentId}
 					attachedSkillIds={
-						agents.find((a) => a.id === managingSkillsAgentId)?.skills_count ? [] : []
+						managingAgent?.skills?.map((skill) => skill.id) ||
+						agents.find((a) => a.id === managingSkillsAgentId)?.skills?.map((skill) => skill.id) ||
+						[]
 					}
 					onAttachSkill={handleAttachSkill}
 					onDetachSkill={handleDetachSkill}
+					isLoading={attachSkill.isPending || detachSkill.isPending}
 				/>
 			)}
 		</>

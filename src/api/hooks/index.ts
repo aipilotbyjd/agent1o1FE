@@ -136,6 +136,7 @@ export {
 	useDuplicateAgent,
 	useFetchAgentSkills,
 	useCreateAgentSkill,
+	useUpdateAgentSkill,
 	useDeleteAgentSkill,
 } from './useAgents';
 

@@ -20,6 +20,7 @@ import { useCurrentWorkspaceId } from '@/context/workspaceContext';
 import {
 	useFetchAgentSkills,
 	useCreateAgentSkill,
+	useUpdateAgentSkill,
 	useDeleteAgentSkill,
 } from '@/api/hooks/useAgents';
 import type { TAgentSkill } from '@/types/agent.type';
@@ -77,6 +78,7 @@ const SkillsListPage = () => {
 	} = useFetchAgentSkills(workspaceId || '');
 
 	const createSkill = useCreateAgentSkill(workspaceId || '');
+	const updateSkill = useUpdateAgentSkill(workspaceId || '');
 	const deleteSkill = useDeleteAgentSkill(workspaceId || '');
 
 	// ─── Derived Data ─────────────────────────────────────
@@ -121,13 +123,21 @@ const SkillsListPage = () => {
 
 	const handleModalSubmit = async (values: Partial<TAgentSkill>) => {
 		if (editingSkill) {
-			// TODO: Implement update skill API call
-			console.log('Update skill:', values);
+			await updateSkill.mutateAsync({ id: editingSkill.id, data: values });
 		} else {
 			await createSkill.mutateAsync(values);
 		}
 		setIsModalOpen(false);
 		setEditingSkill(null);
+	};
+
+	const handleDuplicate = async (skill: TAgentSkill) => {
+		await createSkill.mutateAsync({
+			name: `${skill.name} Copy`,
+			type: skill.type,
+			description: skill.description,
+			config: skill.config,
+		});
 	};
 
 	const handleDelete = (id: string, name: string) => {
@@ -273,9 +283,7 @@ const SkillsListPage = () => {
 													</DropdownItem>
 													<DropdownItem
 														icon='Copy01'
-														onClick={() =>
-															console.log('Duplicate', skill.id)
-														}>
+														onClick={() => handleDuplicate(skill)}>
 														Duplicate
 													</DropdownItem>
 													<DropdownItem
@@ -324,7 +332,7 @@ const SkillsListPage = () => {
 					setEditingSkill(null);
 				}}
 				onSubmit={handleModalSubmit}
-				isLoading={createSkill.isPending}
+				isLoading={createSkill.isPending || updateSkill.isPending}
 				skill={editingSkill}
 			/>
 		</>

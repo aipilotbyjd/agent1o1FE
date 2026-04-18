@@ -24,6 +24,7 @@ const OAuthCallbackPage = lazy(() => import('@/pages/app/OAuthCallback.page'));
 
 const ExecutionsLayout = lazy(() => import('@/pages/app/Executions/_layouts/Executions.layout'));
 const ExecutionsListPage = lazy(() => import('@/pages/app/Executions/ExecutionsList.page'));
+const ExecutionDetailPage = lazy(() => import('@/pages/app/Executions/ExecutionDetail.page'));
 
 const VariablesLayout = lazy(() => import('@/pages/app/Variables/_layouts/Variables.layout'));
 const VariablesListPage = lazy(() => import('@/pages/app/Variables/VariablesList.page'));
@@ -115,13 +116,17 @@ const AppRoutes = [
 	{
 		path: pages.app.appMain.subPages.executions.to,
 		element: <ExecutionsLayout />,
-		children: [
-			{
-				index: true,
-				element: <ExecutionsListPage />,
-			},
-		],
-	},
+			children: [
+				{
+					index: true,
+					element: <ExecutionsListPage />,
+				},
+				{
+					path: ':executionId',
+					element: <ExecutionDetailPage />,
+				},
+			],
+		},
 	{
 		path: pages.app.appMain.subPages.variables.to,
 		element: <VariablesLayout />,

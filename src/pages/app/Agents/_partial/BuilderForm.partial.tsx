@@ -9,7 +9,6 @@ import Textarea from '@/components/form/Textarea';
 import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
 import Icon from '@/components/icon/Icon';
-import { SectionCardPartial } from './SectionCard.partial';
 import {
 	AI_MODELS,
 	TOOL_OPTIONS,
@@ -40,14 +39,12 @@ type BuilderFormPartialProps = {
 
 export const BuilderFormPartial = ({
 	formik,
-	isEditing,
 	activeSection,
 	selfImproveInstructions,
 	setSelfImproveInstructions,
 	enabledToolIds,
 	toggleTool,
 	skills,
-	isLoadingSkills,
 	toggleSkill,
 	selectedTrigger,
 	setSelectedTrigger,
@@ -122,10 +119,11 @@ export const BuilderFormPartial = ({
 				<div className='grid grid-cols-1 gap-6 lg:grid-cols-2'>
 					<div>
 						<div className='mb-2 flex items-center justify-between'>
-							<Label className='mb-0'>Temperature</Label>
+							<Label htmlFor='temperature' className='mb-0'>Temperature</Label>
 							<span className='text-xs font-mono font-semibold text-primary-400'>{formik.values.temperature}</span>
 						</div>
 						<input
+							id='temperature'
 							type='range'
 							name='temperature'
 							min={0}

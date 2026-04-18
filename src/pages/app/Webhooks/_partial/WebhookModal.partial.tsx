@@ -6,7 +6,6 @@ import Button from '@/components/ui/Button';
 import Input from '@/components/form/Input';
 import Label from '@/components/form/Label';
 import Select from '@/components/form/Select';
-import Textarea from '@/components/form/Textarea';
 import Icon from '@/components/icon/Icon';
 import type { TWebhook } from '@/types/webhook.type';
 
