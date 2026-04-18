@@ -1,142 +1,154 @@
-import classNames from 'classnames';
 import { motion } from 'framer-motion';
 import Icon from '@/components/icon/Icon';
 import Badge from '@/components/ui/Badge';
-import FieldWrap from '@/components/form/FieldWrap';
+import Button from '@/components/ui/Button';
+import Card, { CardBody } from '@/components/ui/Card';
+import ChatBubbles, {
+	ChatBubblesItem,
+	ChatBubblesSeparate,
+} from '@/components/ui/ChatBubbles';
 import Textarea from '@/components/form/Textarea';
-import { TOOL_OPTIONS, type TBuilderSection } from './Builder.constants';
+import { TOOL_OPTIONS } from './Builder.constants';
 
 type BuilderChatProps = {
 	avatarAgent: string;
-	avatarUser: string;
 	name: string;
 	model: string;
 	enabledToolIds: string[];
-	selectedSkillsCount: number;
-	isSettingsOpen: boolean;
-	jumpToSection: (section: TBuilderSection) => void;
 };
 
 export const BuilderChatPartial = ({
 	avatarAgent,
-	avatarUser,
 	name,
-	model,
+	model: _model,
 	enabledToolIds,
-	selectedSkillsCount,
-	isSettingsOpen,
 }: BuilderChatProps) => {
+	const agentName = name || 'Untitled Agent';
+	const visibleTools = enabledToolIds
+		.map((toolId) => TOOL_OPTIONS.find((tool) => tool.id === toolId))
+		.filter((tool): tool is (typeof TOOL_OPTIONS)[number] => Boolean(tool))
+		.slice(0, 3);
+
 	return (
-		<aside
-			id='agent-builder-test'
-			className={classNames(
-				'h-full transition-all duration-300',
-				isSettingsOpen ? 'w-full' : 'mx-auto w-full max-w-7xl',
-			)}>
-			<div className='flex h-full flex-col overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/50 backdrop-blur-sm'>
-				{/* Header */}
-				<div className='border-b border-zinc-800 bg-zinc-900/80 p-5'>
-					<div className='flex items-center gap-3'>
-						<div className='relative shrink-0'>
-							<img
-								src={avatarAgent}
-								alt='Agent avatar'
-								className='h-12 w-12 rounded-xl object-cover ring-2 ring-zinc-800'
-							/>
-							<span className='absolute -right-1 -bottom-1 h-3.5 w-3.5 rounded-full bg-primary-500 border-2 border-zinc-900' />
-						</div>
-						<div className='min-w-0 flex-1'>
-							<div className='flex items-center gap-2'>
-								<h3 className='truncate text-base font-semibold text-white'>
-									{name || 'Untitled Agent'}
-								</h3>
-								<Badge color='primary' variant='soft' rounded='rounded-full' className='px-2 py-0 text-[10px]'>Preview</Badge>
-							</div>
-							<div className='mt-1 flex items-center gap-2 text-xs text-zinc-500'>
-								<span className='flex items-center gap-1'>
-									<Icon icon='Cpu' size='text-xs' /> {model}
-								</span>
-								<span>•</span>
-								<span className='flex items-center gap-1'>
-									<Icon icon='Tools' size='text-xs' /> {enabledToolIds.length} Tools
-								</span>
-							</div>
-						</div>
-					</div>
-				</div>
+		<aside id='agent-builder-test' className='h-full min-h-0 w-full transition-all duration-300'>
+			<Card className='flex h-full min-h-0 flex-col shadow-sm'>
+				<CardBody className='min-h-0 flex-1 overflow-y-auto bg-zinc-50/50 pt-6 pb-6 dark:bg-zinc-950/40'>
+					<div className='mx-auto flex w-full max-w-5xl flex-col gap-6'>
+						<ChatBubbles isAvatar className='gap-5'>
+							<ChatBubblesItem isMyContent username='You' className='pe-0 ps-10'>
+								<div className='space-y-2'>
+									<p className='text-[11px] font-semibold uppercase tracking-wide text-white/75'>
+										User Prompt
+									</p>
+									<p className='text-sm leading-6'>
+										Check our latest support tickets and summarize any recurring issues.
+									</p>
+								</div>
+							</ChatBubblesItem>
 
-				{/* Chat Area */}
-				<div className='flex-1 overflow-y-auto bg-zinc-950/50 p-6 space-y-6'>
-					<div className='flex items-start gap-3'>
-						<div className='flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-zinc-800 text-zinc-400'>
-							<Icon icon='User' size='text-lg' />
-						</div>
-						<div className='max-w-[80%] rounded-xl rounded-tl-sm bg-zinc-800/80 px-4 py-2.5 text-sm text-zinc-200 leading-relaxed'>
-							Check our latest support tickets and summarize any recurring issues.
-						</div>
-					</div>
-
-					<div className='flex items-start gap-3'>
-						<div className='flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary-500 text-white'>
-							<Icon icon='Bot' size='text-lg' />
-						</div>
-						<div className='max-w-[80%] rounded-xl rounded-tl-sm border border-zinc-800 bg-zinc-900/80 px-4 py-2.5 text-sm text-zinc-200 leading-relaxed'>
-							I'll start by retrieving the tickets from the database.
-							<div className='mt-3 flex flex-wrap gap-2'>
-								{enabledToolIds.slice(0, 2).map((toolId) => {
-									const tool = TOOL_OPTIONS.find((t) => t.id === toolId);
-									if (!tool) return null;
-									return (
-										<div key={tool.id} className='flex items-center gap-1.5 rounded-md bg-zinc-800 px-2 py-1 text-[10px] font-medium text-zinc-400'>
-											<Icon icon={tool.icon} size='text-xs' className='text-primary-400' />
-											{tool.name}
+							<ChatBubblesItem
+								username={agentName}
+								image={avatarAgent}
+								footer={
+									<div className='flex flex-wrap gap-2'>
+										{visibleTools.map((tool) => (
+											<Badge
+												key={tool.id}
+												color='zinc'
+												variant='soft'
+												rounded='rounded-full'
+												className='text-[11px]'>
+												<Icon icon={tool.icon} size='text-xs' />
+												{tool.name}
+											</Badge>
+										))}
+									</div>
+								}>
+								<div className='space-y-4'>
+									<div className='flex flex-wrap items-center justify-between gap-2'>
+										<div>
+											<p className='text-sm font-semibold text-zinc-900 dark:text-white'>
+												{agentName}
+											</p>
+											<p className='text-xs text-zinc-500'>
+												Running a structured triage pass with enabled tools
+											</p>
 										</div>
-									);
-								})}
+										<Badge color='emerald' variant='soft' rounded='rounded-full'>
+											Ready
+										</Badge>
+									</div>
+
+									<p className='text-sm leading-6 text-zinc-700 dark:text-zinc-300'>
+										I&apos;ll review the latest tickets, cluster similar complaints, and
+										return the top recurring themes with recommended next actions.
+									</p>
+								</div>
+							</ChatBubblesItem>
+
+							<ChatBubblesSeparate className='text-left'>
+								<div className='inline-flex items-center gap-3 rounded-full border border-zinc-500/10 bg-white px-3 py-2 dark:border-zinc-500/25 dark:bg-zinc-950'>
+									<div className='flex gap-1'>
+										{[0, 0.2, 0.4].map((delay) => (
+											<motion.span
+												key={delay}
+												className='h-2 w-2 rounded-full bg-primary-500'
+												animate={{ opacity: [0.25, 1, 0.25], y: [0, -2, 0] }}
+												transition={{ duration: 1.2, repeat: Infinity, delay }}
+											/>
+										))}
+									</div>
+									<span className='text-xs font-medium uppercase tracking-wide text-primary-500'>
+										Thinking
+									</span>
+								</div>
+							</ChatBubblesSeparate>
+						</ChatBubbles>
+					</div>
+				</CardBody>
+
+				<div className='sticky bottom-0 z-10 mt-auto border-t border-zinc-500/10 bg-zinc-50/90 px-4 py-4 backdrop-blur-sm dark:border-zinc-500/25 dark:bg-zinc-950/85 md:px-6 md:py-5'>
+					<div className='mx-auto flex w-full max-w-5xl flex-col gap-3'>
+						<div className='flex flex-wrap items-center gap-2'>
+							<Badge color='zinc' variant='soft' rounded='rounded-full'>
+								Test Prompt
+							</Badge>
+							<Badge color='primary' variant='soft' rounded='rounded-full'>
+								Smart compose enabled
+							</Badge>
+						</div>
+
+						<div className='rounded-2xl border border-zinc-500/10 bg-white p-4 shadow-sm dark:border-zinc-500/25 dark:bg-zinc-950'>
+							<Textarea
+								name='test-message'
+								placeholder='Describe a realistic task to evaluate this agent...'
+								className='min-h-[120px] max-h-[220px] resize-none border-0 bg-transparent p-0 text-sm leading-7 text-zinc-800 placeholder:text-zinc-400 focus:ring-0 focus:outline-none dark:text-zinc-200 dark:placeholder:text-zinc-600'
+								readOnly
+							/>
+
+							<div className='mt-4 flex flex-col gap-3 border-t border-zinc-500/10 pt-4 dark:border-zinc-500/25 lg:flex-row lg:items-center lg:justify-between'>
+								<div className='flex flex-wrap items-center gap-2'>
+									<Button variant='outline' color='zinc' dimension='sm' icon='Attachment'>
+										Attach Context
+									</Button>
+									<Button variant='soft' color='zinc' dimension='sm' icon='Message02'>
+										Use Sample Prompt
+									</Button>
+								</div>
+
+								<div className='flex flex-wrap items-center gap-3 lg:justify-end'>
+									<p className='text-xs text-zinc-500'>
+										Test the current instructions and tool configuration in real-time.
+									</p>
+									<Button variant='solid' color='primary' dimension='sm' rightIcon='Sent'>
+										Send Prompt
+									</Button>
+								</div>
 							</div>
 						</div>
 					</div>
-
-					<div className='flex items-center gap-2 pl-12'>
-						<div className='flex gap-1'>
-							{[0, 0.2, 0.4].map((delay) => (
-								<motion.span
-									key={delay}
-									className='h-1.5 w-1.5 rounded-full bg-primary-500'
-									animate={{ opacity: [0.3, 1, 0.3] }}
-									transition={{ duration: 1.2, repeat: Infinity, delay }}
-								/>
-							))}
-						</div>
-						<span className='text-[10px] font-medium uppercase tracking-wider text-primary-400'>Thinking...</span>
-					</div>
 				</div>
-
-				{/* Input Area */}
-				<div className='border-t border-zinc-800 bg-zinc-900/50 p-4'>
-					<div className='flex flex-col gap-3 rounded-xl border border-zinc-800 bg-zinc-950/50 p-3 focus-within:border-primary-500/50 focus-within:bg-zinc-950 transition-all'>
-						<Textarea
-							name='test-message'
-							placeholder='Test your agent with a detailed prompt...'
-							className='min-h-[100px] max-h-[200px] resize-none border-0 bg-transparent p-0 text-sm text-zinc-200 placeholder:text-zinc-600 focus:ring-0 focus:outline-none'
-							readOnly
-						/>
-						<div className='flex items-center justify-between border-t border-zinc-800/50 pt-3'>
-							<button className='flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-400 transition-colors'>
-								<Icon icon='Attachment' size='text-sm' />
-								<span>Attach</span>
-							</button>
-							<button className='flex items-center gap-1.5 rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-600 transition-colors'>
-								<span>Send</span>
-								<Icon icon='Sent' size='text-sm' />
-							</button>
-						</div>
-					</div>
-					<p className='mt-2 text-center text-xs text-zinc-600'>
-						Test the current instructions and tool configuration in real-time.
-					</p>
-				</div>
-			</div>
+			</Card>
 		</aside>
 	);
 };

@@ -14,7 +14,6 @@ import {
 	useUpdateAgent,
 } from '@/api/hooks/useAgents';
 import avatarAgent from '@/assets/avatar/avatar6.png';
-import avatarUser from '@/assets/avatar/avatar2.png';
 import Badge from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
 import Container from '@/components/layout/Container';
@@ -196,11 +195,6 @@ const AgentBuilderPage = () => {
 		attachSkill.isPending ||
 		detachSkill.isPending;
 
-	const selectedSkills = useMemo(
-		() => skills.filter((skill) => formik.values.selected_skill_ids.includes(skill.id)),
-		[formik.values.selected_skill_ids, skills],
-	);
-
 	// Completion tracking for progress bar
 	const completion = useMemo(() => {
 		const v = formik.values;
@@ -354,14 +348,14 @@ const AgentBuilderPage = () => {
 				</SubheaderRight>
 			</Subheader>
 
-			<Container className='h-full pb-8 pt-4'>
+			<Container breakpoint={null} className='h-full pb-8 pt-4'>
 				<div
 					className={classNames(
 						'grid h-[calc(100vh-140px)] grid-cols-1 gap-6',
 						isFormVisible ? 'lg:grid-cols-12' : 'grid-cols-1',
 					)}>
 					{isFormVisible && (
-						<div className='flex flex-col gap-6 overflow-y-auto pr-2 lg:col-span-6'>
+						<div className='flex min-h-0 flex-col gap-6 overflow-y-auto pr-2 lg:col-span-6'>
 							<BuilderFormPartial
 								formik={formik}
 								isEditing={isEditing}
@@ -383,16 +377,12 @@ const AgentBuilderPage = () => {
 						</div>
 					)}
 
-					<div className={classNames(isFormVisible ? 'lg:col-span-6' : 'mx-auto w-full max-w-5xl')}>
+					<div className={classNames('min-h-0', isFormVisible ? 'lg:col-span-6' : 'w-full')}>
 						<BuilderChatPartial
 							avatarAgent={avatarAgent}
-							avatarUser={avatarUser}
 							name={formik.values.name}
 							model={formik.values.model}
 							enabledToolIds={enabledToolIds}
-							selectedSkillsCount={selectedSkills.length}
-							isSettingsOpen={isFormVisible}
-							jumpToSection={() => {}}
 						/>
 					</div>
 				</div>
