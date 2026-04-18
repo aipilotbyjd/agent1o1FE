@@ -68,15 +68,15 @@ const AppRoutes = [
 				index: true,
 				element: <AgentsListPage />,
 			},
-			{
-				path: pages.app.appMain.subPages.agents.subPages.new.to,
-				element: <AgentBuilderPage />,
-			},
-			{
-				path: pages.app.appMain.subPages.agents.subPages.edit.to,
-				element: <AgentBuilderPage />,
-			},
 		],
+	},
+	{
+		path: pages.app.appMain.subPages.agents.subPages.new.to,
+		element: <AgentBuilderPage />,
+	},
+	{
+		path: pages.app.appMain.subPages.agents.subPages.edit.to,
+		element: <AgentBuilderPage />,
 	},
 	{
 		path: pages.app.appMain.subPages.skills.to,

@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import classNames from 'classnames';
 import { toast } from 'react-toastify';
-import { useNavigate, useOutletContext, useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 
 import {
 	useAttachAgentSkill,
@@ -13,11 +13,9 @@ import {
 	useFetchAgentSkills,
 	useUpdateAgent,
 } from '@/api/hooks/useAgents';
-import pages from '@/Routes/pages';
 import avatarAgent from '@/assets/avatar/avatar6.png';
 import avatarUser from '@/assets/avatar/avatar2.png';
 import Badge from '@/components/ui/Badge';
-import Breadcrumb from '@/components/layout/Breadcrumb';
 import Button from '@/components/ui/Button';
 import Checkbox from '@/components/form/Checkbox';
 import Container from '@/components/layout/Container';
@@ -35,8 +33,6 @@ import Textarea from '@/components/form/Textarea';
 import { useCurrentWorkspaceId } from '@/context/workspaceContext';
 import type { TAgent, TAgentSkill } from '@/types/agent.type';
 import type { TColors } from '@/types/colors.type';
-
-import { OutletContextType } from './_layouts/Agents.layout';
 
 type TAgentBuilderForm = {
 	name: string;
@@ -91,15 +87,6 @@ const AI_MODELS = [
 	{ value: 'claude-3-haiku', label: 'Claude 3 Haiku' },
 	{ value: 'gemini-pro', label: 'Gemini Pro' },
 	{ value: 'gemini-flash', label: 'Gemini Flash' },
-];
-
-const BUILDER_SECTIONS: { id: TBuilderSection; label: string; icon: string }[] = [
-	{ id: 'basics', label: 'Basics', icon: 'Bot' },
-	{ id: 'instructions', label: 'Instructions', icon: 'FileEdit' },
-	{ id: 'tools', label: 'Tools', icon: 'Tool02' },
-	{ id: 'skills', label: 'Skills', icon: 'Tools' },
-	{ id: 'triggers', label: 'Triggers', icon: 'Clock03' },
-	{ id: 'test', label: 'Test', icon: 'Message02' },
 ];
 
 const TOOL_OPTIONS: TToolOption[] = [
@@ -256,9 +243,7 @@ const AgentBuilderPage = () => {
 	const workspaceId = useCurrentWorkspaceId();
 	const { agentId } = useParams();
 	const isEditing = Boolean(agentId);
-	const { setHeaderLeft } = useOutletContext<OutletContextType>();
 
-	const [activeSection, setActiveSection] = useState<TBuilderSection>('basics');
 	const [enabledToolIds, setEnabledToolIds] = useState<string[]>(DEFAULT_TOOL_IDS);
 	const [selectedTrigger, setSelectedTrigger] = useState('manual');
 	const [selfImproveInstructions, setSelfImproveInstructions] = useState(true);
@@ -277,26 +262,6 @@ const AgentBuilderPage = () => {
 
 	const agent = useMemo(() => unwrapApiItem<TAgent>(agentData), [agentData]);
 	const skills = useMemo(() => unwrapApiList<TAgentSkill>(skillsData), [skillsData]);
-
-	useEffect(() => {
-		setHeaderLeft(
-			<Breadcrumb
-				list={[
-					{ ...pages.app.appMain.subPages.agents },
-					{
-						text: isEditing ? 'Edit Agent' : 'New Agent',
-						to:
-							isEditing && agentId
-								? `/app/agents/${agentId}/edit`
-								: '/app/agents/new',
-						icon: isEditing ? 'PencilEdit02' : 'PlusSignCircle',
-					},
-				]}
-			/>,
-		);
-
-		return () => setHeaderLeft(undefined);
-	}, [agentId, isEditing, setHeaderLeft]);
 
 	const formik = useFormik<TAgentBuilderForm>({
 		initialValues: getInitialValues(agent),
@@ -388,7 +353,6 @@ const AgentBuilderPage = () => {
 	};
 
 	const jumpToSection = (section: TBuilderSection) => {
-		setActiveSection(section);
 		document
 			.getElementById(`agent-builder-${section}`)
 			?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -397,7 +361,6 @@ const AgentBuilderPage = () => {
 	const addPromptRule = (rule: string) => {
 		const nextPrompt = `${formik.values.system_prompt.trim()}\n\n${rule}`;
 		formik.setFieldValue('system_prompt', nextPrompt);
-		setActiveSection('instructions');
 	};
 
 	if (isEditing && isLoadingAgent) {
@@ -457,13 +420,14 @@ const AgentBuilderPage = () => {
 					</Badge>
 					<SubheaderSeparator />
 					<Button
-						variant='outline'
+						variant='solid'
 						icon='Message02'
 						onClick={() => jumpToSection('test')}>
-						Test
+						Test Agent
 					</Button>
+					<SubheaderSeparator />
 					<Button
-						variant='solid'
+						variant='outline'
 						icon='CheckmarkCircle02'
 						isLoading={isSaving}
 						isDisable={!formik.isValid || isSaving}
@@ -474,37 +438,7 @@ const AgentBuilderPage = () => {
 			</Subheader>
 
 			<Container className='h-full'>
-				<div className='grid min-h-full grid-cols-1 gap-4 xl:grid-cols-[15rem_minmax(0,1fr)_22rem]'>
-					<aside className='xl:sticky xl:top-4 xl:h-fit'>
-						<div className='rounded-lg border border-zinc-200 bg-white p-2 dark:border-zinc-800 dark:bg-zinc-950'>
-							<div className='px-3 py-2'>
-								<p className='text-xs font-semibold text-zinc-500 uppercase'>
-									Agent Builder
-								</p>
-								<p className='mt-1 truncate text-sm font-semibold text-zinc-900 dark:text-white'>
-									{formik.values.name || 'Untitled agent'}
-								</p>
-							</div>
-							<div className='mt-2 space-y-1'>
-								{BUILDER_SECTIONS.map((section) => (
-									<button
-										key={section.id}
-										type='button'
-										className={classNames(
-											'flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors',
-											activeSection === section.id
-												? 'bg-primary-500 text-zinc-900'
-												: 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-900',
-										)}
-										onClick={() => jumpToSection(section.id)}>
-										<Icon icon={section.icon} />
-										<span>{section.label}</span>
-									</button>
-								))}
-							</div>
-						</div>
-					</aside>
-
+				<div className='grid min-h-full grid-cols-1 gap-4 xl:grid-cols-[1fr_1fr]'>
 					<form className='space-y-4' onSubmit={formik.handleSubmit}>
 						<section
 							id='agent-builder-basics'
@@ -783,7 +717,7 @@ const AgentBuilderPage = () => {
 								) : (
 									<div className='grid grid-cols-1 gap-3 lg:grid-cols-2'>
 										{skills.map((skill) => {
-											const isSelected = selectedSkillIds.includes(skill.id);
+											const isSelected = formik.values.selected_skill_ids.includes(skill.id);
 											const meta = SKILL_META[skill.type];
 
 											return (
