@@ -111,7 +111,7 @@ const AgentBuilderPage = () => {
 	const [selectedTrigger, setSelectedTrigger] = useState('manual');
 	const [selfImproveInstructions, setSelfImproveInstructions] = useState(true);
 	const [followUpPrompts, setFollowUpPrompts] = useState(true);
-	const [isSettingsOpen, setIsSettingsOpen] = useState(true);
+	const [isFormVisible, setIsFormVisible] = useState(true);
 	const [activeSection, setActiveSection] = useState<TBuilderSection>('basics');
 
 	const {
@@ -303,7 +303,7 @@ const AgentBuilderPage = () => {
 					</div>
 				</SubheaderLeft>
 				<SubheaderRight>
-					<div className='flex items-center gap-1.5 rounded-2xl bg-zinc-100 p-1.5 dark:bg-zinc-900'>
+					<div className='flex items-center gap-1.5 rounded-2xl bg-zinc-900 p-1.5 border border-zinc-800'>
 						{navItems.map((item) => (
 							<button
 								key={item.id}
@@ -312,8 +312,8 @@ const AgentBuilderPage = () => {
 								className={classNames(
 									'flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all',
 									activeSection === item.id
-										? 'bg-white text-primary-500 shadow-md shadow-black/5 dark:bg-zinc-800'
-										: 'text-zinc-500 hover:bg-zinc-200/50 dark:hover:bg-zinc-800/50',
+										? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20'
+										: 'text-zinc-400 hover:bg-zinc-800 hover:text-zinc-300',
 								)}>
 								<Icon icon={item.icon} size='text-sm' />
 								{item.label}
@@ -321,10 +321,10 @@ const AgentBuilderPage = () => {
 						))}
 					</div>
 					<SubheaderSeparator />
-					<div className='hidden items-center gap-2 rounded-full bg-zinc-100 px-4 py-2 text-[10px] font-bold text-zinc-600 md:flex dark:bg-zinc-900 dark:text-zinc-400'>
-						<span className='bg-primary-500 relative flex h-2 w-2'>
-							<span className='bg-primary-500 absolute inline-flex h-full w-full animate-ping rounded-full opacity-75' />
-							<span className='bg-primary-500 relative inline-flex h-2 w-2 rounded-full' />
+					<div className='hidden items-center gap-2 rounded-full bg-zinc-900 px-4 py-2 text-[10px] font-bold text-zinc-400 md:flex border border-zinc-800'>
+						<span className='bg-emerald-500 relative flex h-2 w-2'>
+							<span className='bg-emerald-500 absolute inline-flex h-full w-full animate-ping rounded-full opacity-75' />
+							<span className='bg-emerald-500 relative inline-flex h-2 w-2 rounded-full' />
 						</span>
 						{completion}%
 					</div>
@@ -338,13 +338,13 @@ const AgentBuilderPage = () => {
 					<Button
 						variant='outline'
 						dimension='sm'
-						icon={isSettingsOpen ? 'SidebarRight01' : 'SidebarLeft01'}
-						onClick={() => setIsSettingsOpen((prev) => !prev)}>
-						{isSettingsOpen ? 'Hide Preview' : 'Show Preview'}
+						icon={isFormVisible ? 'SidebarLeft01' : 'SidebarRight01'}
+						onClick={() => setIsFormVisible((prev) => !prev)}>
+						{isFormVisible ? 'Hide Settings' : 'Show Settings'}
 					</Button>
 					<Button
 						variant='solid'
-						color='primary'
+						color='emerald'
 						icon='CheckmarkCircle02'
 						isLoading={isSaving}
 						isDisable={!formik.isValid || isSaving}
@@ -358,47 +358,43 @@ const AgentBuilderPage = () => {
 				<div
 					className={classNames(
 						'grid h-[calc(100vh-140px)] grid-cols-1 gap-6',
-						isSettingsOpen ? 'lg:grid-cols-12' : 'grid-cols-1',
+						isFormVisible ? 'lg:grid-cols-12' : 'grid-cols-1',
 					)}>
-					<div
-						className={classNames(
-							'flex flex-col gap-6 overflow-y-auto pr-2',
-							isSettingsOpen ? 'lg:col-span-6' : 'mx-auto w-full max-w-5xl',
-						)}>
-						<BuilderFormPartial
-							formik={formik}
-							isEditing={isEditing}
-							isSettingsOpen={true}
-							activeSection={activeSection}
-							selfImproveInstructions={selfImproveInstructions}
-							setSelfImproveInstructions={setSelfImproveInstructions}
-							enabledToolIds={enabledToolIds}
-							toggleTool={toggleTool}
-							skills={skills}
-							isLoadingSkills={isLoadingSkills}
-							toggleSkill={toggleSkill}
-							selectedTrigger={selectedTrigger}
-							setSelectedTrigger={setSelectedTrigger}
-							followUpPrompts={followUpPrompts}
-							setFollowUpPrompts={setFollowUpPrompts}
-							addPromptRule={addPromptRule}
-						/>
-					</div>
-
-					{isSettingsOpen && (
-						<div className='lg:col-span-6'>
-							<BuilderChatPartial
-								avatarAgent={avatarAgent}
-								avatarUser={avatarUser}
-								name={formik.values.name}
-								model={formik.values.model}
+					{isFormVisible && (
+						<div className='flex flex-col gap-6 overflow-y-auto pr-2 lg:col-span-6'>
+							<BuilderFormPartial
+								formik={formik}
+								isEditing={isEditing}
+								isSettingsOpen={isFormVisible}
+								activeSection={activeSection}
+								selfImproveInstructions={selfImproveInstructions}
+								setSelfImproveInstructions={setSelfImproveInstructions}
 								enabledToolIds={enabledToolIds}
-								selectedSkillsCount={selectedSkills.length}
-								isSettingsOpen={true}
-								jumpToSection={() => {}}
+								toggleTool={toggleTool}
+								skills={skills}
+								isLoadingSkills={isLoadingSkills}
+								toggleSkill={toggleSkill}
+								selectedTrigger={selectedTrigger}
+								setSelectedTrigger={setSelectedTrigger}
+								followUpPrompts={followUpPrompts}
+								setFollowUpPrompts={setFollowUpPrompts}
+								addPromptRule={addPromptRule}
 							/>
 						</div>
 					)}
+
+					<div className={classNames(isFormVisible ? 'lg:col-span-6' : 'mx-auto w-full max-w-5xl')}>
+						<BuilderChatPartial
+							avatarAgent={avatarAgent}
+							avatarUser={avatarUser}
+							name={formik.values.name}
+							model={formik.values.model}
+							enabledToolIds={enabledToolIds}
+							selectedSkillsCount={selectedSkills.length}
+							isSettingsOpen={isFormVisible}
+							jumpToSection={() => {}}
+						/>
+					</div>
 				</div>
 			</Container>
 		</>
