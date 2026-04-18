@@ -123,7 +123,6 @@ export const BuilderChatPartial = ({
 								name='test-message'
 								placeholder='Describe a realistic task to evaluate this agent...'
 								className='min-h-[120px] max-h-[220px] resize-none border-0 bg-transparent p-0 text-sm leading-7 text-zinc-800 placeholder:text-zinc-400 focus:ring-0 focus:outline-none dark:text-zinc-200 dark:placeholder:text-zinc-600'
-								readOnly
 							/>
 
 							<div className='mt-4 flex flex-col gap-3 border-t border-zinc-500/10 pt-4 dark:border-zinc-500/25 lg:flex-row lg:items-center lg:justify-between'>
