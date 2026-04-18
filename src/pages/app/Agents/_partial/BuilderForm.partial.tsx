@@ -58,12 +58,12 @@ export const BuilderFormPartial = ({
 	const navigate = useNavigate();
 
 	const renderBasics = () => (
-		<div className='space-y-6'>
-			<div className='rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 backdrop-blur-sm'>
-				<div className='mb-6 flex items-center justify-between'>
+		<div className='space-y-4'>
+			<div className='rounded-xl border border-zinc-800 bg-zinc-900/50 p-5'>
+				<div className='mb-5 flex items-center justify-between'>
 					<div>
-						<h2 className='text-lg font-bold text-white'>Identity & Model</h2>
-						<p className='text-sm text-zinc-400'>Define how your agent identifies and the engine powering it.</p>
+						<h2 className='text-base font-semibold text-white'>Identity & Model</h2>
+						<p className='text-xs text-zinc-500'>Define how your agent identifies and the engine powering it</p>
 					</div>
 					<Checkbox
 						id='agent-active'
@@ -74,7 +74,7 @@ export const BuilderFormPartial = ({
 						onChange={formik.handleChange}
 					/>
 				</div>
-				<div className='grid grid-cols-1 gap-6 lg:grid-cols-2'>
+				<div className='grid grid-cols-1 gap-4 lg:grid-cols-2'>
 					<div className='lg:col-span-2'>
 						<Label htmlFor='name'>Agent Name</Label>
 						<Input
@@ -117,13 +117,13 @@ export const BuilderFormPartial = ({
 				</div>
 			</div>
 
-			<div className='rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 backdrop-blur-sm'>
-				<h2 className='mb-4 text-lg font-bold text-white'>Hyperparameters</h2>
-				<div className='grid grid-cols-1 gap-8 lg:grid-cols-2'>
+			<div className='rounded-xl border border-zinc-800 bg-zinc-900/50 p-5'>
+				<h2 className='mb-4 text-base font-semibold text-white'>Hyperparameters</h2>
+				<div className='grid grid-cols-1 gap-6 lg:grid-cols-2'>
 					<div>
 						<div className='mb-2 flex items-center justify-between'>
 							<Label className='mb-0'>Temperature</Label>
-							<span className='text-xs font-mono font-bold text-emerald-400'>{formik.values.temperature}</span>
+							<span className='text-xs font-mono font-semibold text-primary-400'>{formik.values.temperature}</span>
 						</div>
 						<input
 							type='range'
@@ -133,9 +133,9 @@ export const BuilderFormPartial = ({
 							step={0.1}
 							value={formik.values.temperature}
 							onChange={formik.handleChange}
-							className='h-2 w-full cursor-pointer appearance-none rounded-lg bg-zinc-800 accent-emerald-500'
+							className='h-2 w-full cursor-pointer appearance-none rounded-lg bg-zinc-800 accent-primary-500'
 						/>
-						<div className='mt-2 flex justify-between text-[10px] text-zinc-400 uppercase tracking-tighter'>
+						<div className='mt-2 flex justify-between text-[10px] text-zinc-500 uppercase'>
 							<span>Precise</span>
 							<span>Creative</span>
 						</div>
@@ -157,11 +157,11 @@ export const BuilderFormPartial = ({
 
 	const renderInstructions = () => (
 		<div className='flex h-full flex-col gap-4'>
-			<div className='flex-1 rounded-2xl border border-zinc-800 bg-zinc-900/50 flex flex-col overflow-hidden backdrop-blur-sm'>
-				<div className='flex items-center justify-between border-b border-zinc-800 px-6 py-4'>
+			<div className='flex-1 rounded-xl border border-zinc-800 bg-zinc-900/50 flex flex-col overflow-hidden'>
+				<div className='flex items-center justify-between border-b border-zinc-800 px-5 py-4'>
 					<div>
-						<h2 className='text-lg font-bold text-white'>System Instructions</h2>
-						<p className='text-sm text-zinc-400'>The "brain" of your agent. Define logic, persona, and constraints.</p>
+						<h2 className='text-base font-semibold text-white'>System Instructions</h2>
+						<p className='text-xs text-zinc-500'>Define your agent's behavior and personality</p>
 					</div>
 					<Checkbox
 						id='self-improve-instructions'
@@ -175,23 +175,31 @@ export const BuilderFormPartial = ({
 					<Textarea
 						id='system_prompt'
 						name='system_prompt'
-						className='h-full min-h-[400px] border-0 bg-transparent p-6 font-mono text-sm leading-relaxed text-zinc-300 focus:ring-0 placeholder:text-zinc-600'
+						className='h-full min-h-[500px] resize-none border-0 bg-transparent p-5 text-sm text-zinc-200 leading-relaxed focus:ring-0 focus:outline-none placeholder:text-zinc-600'
 						value={formik.values.system_prompt}
 						onChange={formik.handleChange}
-						placeholder='Enter detailed instructions here...'
+						placeholder='Enter detailed instructions here...
+
+Example:
+You are an expert AI assistant specialized in data analysis. Your role is to:
+- Analyze data patterns and provide insights
+- Communicate findings clearly and concisely
+- Ask clarifying questions when needed'
 					/>
-					<div className='absolute bottom-4 right-6 flex items-center gap-4 rounded-full bg-zinc-900/90 px-4 py-2 text-[10px] font-bold text-zinc-400 shadow-sm backdrop-blur-sm border border-zinc-800'>
-						<span className='flex items-center gap-1'>
-							<Icon icon='Code' size='text-xs' /> Markdown
+					<div className='absolute bottom-4 right-5 flex items-center gap-3 rounded-lg bg-zinc-900/90 px-3 py-2 text-xs text-zinc-500 backdrop-blur-sm border border-zinc-800'>
+						<span className='flex items-center gap-1.5'>
+							<Icon icon='Code' size='text-xs' /> 
+							<span>Markdown</span>
 						</span>
-						<span>{formik.values.system_prompt.length} Characters</span>
+						<span className='h-3 w-px bg-zinc-700'></span>
+						<span>{formik.values.system_prompt.length} chars</span>
 					</div>
 				</div>
 			</div>
 
-			<div className='rounded-2xl border border-zinc-800 bg-zinc-900/30 p-6 backdrop-blur-sm'>
-				<p className='mb-4 text-xs font-bold uppercase tracking-widest text-zinc-500'>Instruction Libraries</p>
-				<div className='grid grid-cols-1 gap-3 sm:grid-cols-3'>
+			<div className='rounded-xl border border-zinc-800 bg-zinc-900/30 p-4'>
+				<p className='mb-3 text-xs font-medium text-zinc-500'>Quick Templates</p>
+				<div className='grid grid-cols-1 gap-2 sm:grid-cols-3'>
 					{[
 						{ label: 'Role Definition', icon: 'UserAccount', rule: 'Role: You are an expert analyst...' },
 						{ label: 'Safety Guardrails', icon: 'Shield', rule: 'Safety: Never share credentials...' },
@@ -201,11 +209,11 @@ export const BuilderFormPartial = ({
 							key={lib.label}
 							type='button'
 							onClick={() => addPromptRule(lib.rule)}
-							className='flex items-center gap-3 rounded-xl border border-zinc-800 bg-zinc-900/50 p-3 text-left transition-all hover:border-emerald-500 hover:shadow-md hover:bg-zinc-900/80'>
-							<div className='flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'>
+							className='flex items-center gap-2 rounded-lg border border-zinc-800 bg-zinc-900/50 p-3 text-left transition-colors hover:border-primary-500/50 hover:bg-zinc-900'>
+							<div className='flex h-8 w-8 items-center justify-center rounded-lg bg-primary-500/10 text-primary-400 border border-primary-500/20'>
 								<Icon icon={lib.icon} size='text-sm' />
 							</div>
-							<span className='text-xs font-semibold text-zinc-300'>{lib.label}</span>
+							<span className='text-xs font-medium text-zinc-300'>{lib.label}</span>
 						</button>
 					))}
 				</div>
@@ -217,47 +225,46 @@ export const BuilderFormPartial = ({
 		<div className='space-y-6'>
 			<div>
 				<div className='mb-4 flex items-center justify-between'>
-					<h2 className='text-lg font-bold text-white'>Available Capabilities</h2>
-					<Badge variant='soft' color='emerald' rounded='rounded-full'>
-						{enabledToolIds.length} Tools Active
+					<h2 className='text-base font-semibold text-white'>Available Capabilities</h2>
+					<Badge variant='soft' color='primary' rounded='rounded-full'>
+						{enabledToolIds.length} Active
 					</Badge>
 				</div>
-				<div className='grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3'>
+				<div className='grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3'>
 					{TOOL_OPTIONS.map((tool) => {
 						const isEnabled = enabledToolIds.includes(tool.id);
 						return (
-							<motion.button
+							<button
 								key={tool.id}
 								type='button'
-								whileHover={{ y: -2 }}
 								className={classNames(
-									'relative flex flex-col rounded-2xl border p-5 text-left transition-all',
+									'relative flex flex-col rounded-xl border p-4 text-left transition-colors',
 									isEnabled
-										? 'border-emerald-500 bg-emerald-500/10 ring-1 ring-emerald-500/20'
+										? 'border-primary-500/50 bg-primary-500/10'
 										: 'border-zinc-800 bg-zinc-900/50 hover:border-zinc-700'
 								)}
 								onClick={() => toggleTool(tool.id)}
 							>
 								<div className='flex items-center justify-between'>
-									<div className={classNames('flex h-10 w-10 items-center justify-center rounded-xl shadow-sm ring-1 ring-zinc-800', isEnabled ? 'bg-emerald-500 text-white' : 'bg-zinc-800 text-zinc-500')}>
-										<Icon icon={tool.icon} size='text-xl' />
+									<div className={classNames('flex h-9 w-9 items-center justify-center rounded-lg', isEnabled ? 'bg-primary-500 text-white' : 'bg-zinc-800 text-zinc-500')}>
+										<Icon icon={tool.icon} size='text-lg' />
 									</div>
-									{isEnabled && <Icon icon='Tick01' className='text-emerald-400' />}
+									{isEnabled && <Icon icon='Tick01' className='text-primary-400' size='text-lg' />}
 								</div>
-								<p className='mt-4 font-bold text-white'>{tool.name}</p>
-								<p className='mt-1 text-xs text-zinc-400 line-clamp-2'>{tool.description}</p>
-							</motion.button>
+								<p className='mt-3 text-sm font-semibold text-white'>{tool.name}</p>
+								<p className='mt-1 text-xs text-zinc-500 line-clamp-2'>{tool.description}</p>
+							</button>
 						);
 					})}
 				</div>
 			</div>
 
-			<div className='border-t border-zinc-800 pt-8'>
+			<div className='border-t border-zinc-800 pt-6'>
 				<div className='mb-4 flex items-center justify-between'>
-					<h2 className='text-lg font-bold text-white'>Knowledge & Skills</h2>
+					<h2 className='text-base font-semibold text-white'>Knowledge & Skills</h2>
 					<Button variant='outline' dimension='sm' icon='PlusSign' onClick={() => navigate('/app/skills')}>New Skill</Button>
 				</div>
-				<div className='grid grid-cols-1 gap-4 lg:grid-cols-2'>
+				<div className='grid grid-cols-1 gap-3 lg:grid-cols-2'>
 					{skills.map((skill) => {
 						const isSelected = formik.values.selected_skill_ids.includes(skill.id);
 						const meta = SKILL_META[skill.type];
@@ -267,19 +274,19 @@ export const BuilderFormPartial = ({
 								type='button'
 								onClick={() => toggleSkill(skill.id)}
 								className={classNames(
-									'flex items-start gap-4 rounded-2xl border p-4 text-left transition-all',
-									isSelected ? 'border-emerald-500 bg-emerald-500/10' : 'border-zinc-800 bg-zinc-900/50 hover:border-zinc-700'
+									'flex items-start gap-3 rounded-xl border p-3 text-left transition-colors',
+									isSelected ? 'border-primary-500/50 bg-primary-500/10' : 'border-zinc-800 bg-zinc-900/50 hover:border-zinc-700'
 								)}
 							>
-								<div className='flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-zinc-800 shadow-sm ring-1 ring-zinc-800'>
-									<Icon icon={meta.icon} color={meta.color} size='text-2xl' />
+								<div className='flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-zinc-800'>
+									<Icon icon={meta.icon} color={meta.color} size='text-xl' />
 								</div>
 								<div className='min-w-0 flex-1'>
 									<div className='flex items-center justify-between'>
-										<p className='font-bold text-white truncate'>{skill.name}</p>
-										{isSelected && <Badge color='emerald' variant='soft' rounded='rounded-full'>Enabled</Badge>}
+										<p className='text-sm font-semibold text-white truncate'>{skill.name}</p>
+										{isSelected && <Badge color='primary' variant='soft' rounded='rounded-full' className='ml-2'>Active</Badge>}
 									</div>
-									<p className='mt-1 text-xs text-zinc-400 line-clamp-1'>{skill.description}</p>
+									<p className='mt-0.5 text-xs text-zinc-500 line-clamp-1'>{skill.description}</p>
 								</div>
 							</button>
 						);
@@ -290,10 +297,10 @@ export const BuilderFormPartial = ({
 	);
 
 	const renderTriggers = () => (
-		<div className='space-y-6'>
-			<div className='rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 backdrop-blur-sm'>
-				<h2 className='mb-6 text-lg font-bold text-white'>Activation Methods</h2>
-				<div className='grid grid-cols-1 gap-4 lg:grid-cols-3'>
+		<div className='space-y-4'>
+			<div className='rounded-xl border border-zinc-800 bg-zinc-900/50 p-5'>
+				<h2 className='mb-4 text-base font-semibold text-white'>Activation Methods</h2>
+				<div className='grid grid-cols-1 gap-3 lg:grid-cols-3'>
 					{TRIGGER_OPTIONS.map((trigger) => {
 						const isSelected = selectedTrigger === trigger.id;
 						return (
@@ -302,31 +309,31 @@ export const BuilderFormPartial = ({
 								type='button'
 								onClick={() => setSelectedTrigger(trigger.id)}
 								className={classNames(
-									'relative flex flex-col rounded-2xl border p-6 text-left transition-all',
-									isSelected ? 'border-emerald-500 bg-emerald-500/10 shadow-sm' : 'border-zinc-800 bg-zinc-900/50 hover:border-zinc-700'
+									'relative flex flex-col rounded-xl border p-4 text-left transition-colors',
+									isSelected ? 'border-primary-500/50 bg-primary-500/10' : 'border-zinc-800 bg-zinc-900/50 hover:border-zinc-700'
 								)}
 							>
-								<div className={classNames('flex h-12 w-12 items-center justify-center rounded-xl mb-4', isSelected ? 'bg-emerald-500 text-white' : 'bg-zinc-800 text-zinc-500')}>
-									<Icon icon={trigger.icon} size='text-2xl' />
+								<div className={classNames('flex h-10 w-10 items-center justify-center rounded-lg mb-3', isSelected ? 'bg-primary-500 text-white' : 'bg-zinc-800 text-zinc-500')}>
+									<Icon icon={trigger.icon} size='text-xl' />
 								</div>
-								<p className='font-bold text-white'>{trigger.name}</p>
-								<p className='mt-1 text-xs text-zinc-400'>{trigger.description}</p>
-								{isSelected && <div className='absolute top-4 right-4 h-2 w-2 rounded-full bg-emerald-500 animate-pulse' />}
+								<p className='text-sm font-semibold text-white'>{trigger.name}</p>
+								<p className='mt-1 text-xs text-zinc-500'>{trigger.description}</p>
+								{isSelected && <div className='absolute top-3 right-3 h-2 w-2 rounded-full bg-primary-500' />}
 							</button>
 						);
 					})}
 				</div>
 			</div>
 
-			<div className='rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 backdrop-blur-sm'>
+			<div className='rounded-xl border border-zinc-800 bg-zinc-900/50 p-5'>
 				<div className='flex items-center justify-between'>
-					<div className='flex items-center gap-4'>
-						<div className='flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'>
-							<Icon icon='Sparkles' size='text-2xl' />
+					<div className='flex items-center gap-3'>
+						<div className='flex h-10 w-10 items-center justify-center rounded-lg bg-primary-500/10 text-primary-400 border border-primary-500/20'>
+							<Icon icon='Sparkles' size='text-xl' />
 						</div>
 						<div>
-							<h3 className='font-bold text-white'>Conversational Intelligence</h3>
-							<p className='text-sm text-zinc-400'>Suggest smart follow-up actions to users.</p>
+							<h3 className='text-sm font-semibold text-white'>Conversational Intelligence</h3>
+							<p className='text-xs text-zinc-500'>Suggest smart follow-up actions to users</p>
 						</div>
 					</div>
 					<Checkbox

@@ -310,9 +310,9 @@ const AgentBuilderPage = () => {
 								type='button'
 								onClick={() => setActiveSection(item.id)}
 								className={classNames(
-									'flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all',
+									'flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition-colors',
 									activeSection === item.id
-										? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20'
+										? 'bg-primary-500 text-white'
 										: 'text-zinc-400 hover:bg-zinc-800 hover:text-zinc-300',
 								)}>
 								<Icon icon={item.icon} size='text-sm' />
@@ -321,16 +321,16 @@ const AgentBuilderPage = () => {
 						))}
 					</div>
 					<SubheaderSeparator />
-					<div className='hidden items-center gap-2 rounded-full bg-zinc-900 px-4 py-2 text-[10px] font-bold text-zinc-400 md:flex border border-zinc-800'>
-						<span className='bg-emerald-500 relative flex h-2 w-2'>
-							<span className='bg-emerald-500 absolute inline-flex h-full w-full animate-ping rounded-full opacity-75' />
-							<span className='bg-emerald-500 relative inline-flex h-2 w-2 rounded-full' />
+					<div className='hidden items-center gap-2 rounded-full bg-zinc-900 px-4 py-2 text-[10px] font-semibold text-zinc-400 md:flex border border-zinc-800'>
+						<span className='bg-primary-500 relative flex h-2 w-2'>
+							<span className='bg-primary-500 absolute inline-flex h-full w-full animate-ping rounded-full opacity-75' />
+							<span className='bg-primary-500 relative inline-flex h-2 w-2 rounded-full' />
 						</span>
 						{completion}%
 					</div>
 					<Badge
 						variant='soft'
-						color={formik.values.is_active ? 'emerald' : 'zinc'}
+						color={formik.values.is_active ? 'primary' : 'zinc'}
 						rounded='rounded-full'>
 						{formik.values.is_active ? 'Active' : 'Inactive'}
 					</Badge>
@@ -344,7 +344,7 @@ const AgentBuilderPage = () => {
 					</Button>
 					<Button
 						variant='solid'
-						color='emerald'
+						color='primary'
 						icon='CheckmarkCircle02'
 						isLoading={isSaving}
 						isDisable={!formik.isValid || isSaving}
