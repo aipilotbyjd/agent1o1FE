@@ -33,7 +33,6 @@ import {
 	DEFAULT_TOOL_IDS,
 	type TBuilderSection,
 } from './_partial/Builder.constants';
-import { BuilderHeroPartial } from './_partial/BuilderHero.partial';
 import { BuilderChatPartial } from './_partial/BuilderChat.partial';
 import { BuilderFormPartial } from './_partial/BuilderForm.partial';
 
@@ -113,7 +112,7 @@ const AgentBuilderPage = () => {
 	const [selfImproveInstructions, setSelfImproveInstructions] = useState(true);
 	const [followUpPrompts, setFollowUpPrompts] = useState(true);
 	const [isSettingsOpen, setIsSettingsOpen] = useState(true);
-	const [, setActiveSection] = useState<TBuilderSection>('basics');
+	const [activeSection, setActiveSection] = useState<TBuilderSection>('basics');
 
 	const {
 		data: agentData,
@@ -233,12 +232,6 @@ const AgentBuilderPage = () => {
 		formik.setFieldValue('selected_skill_ids', nextSkillIds);
 	};
 
-	const jumpToSection = (section: TBuilderSection) => {
-		document
-			.getElementById(`agent-builder-${section}`)
-			?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-	};
-
 	const addPromptRule = (rule: string) => {
 		const nextPrompt = `${formik.values.system_prompt.trim()}\n\n${rule}`;
 		formik.setFieldValue('system_prompt', nextPrompt);
@@ -283,6 +276,13 @@ const AgentBuilderPage = () => {
 		);
 	}
 
+	const navItems: { id: TBuilderSection; label: string; icon: any }[] = [
+		{ id: 'basics', label: 'Configuration', icon: 'Settings02' },
+		{ id: 'instructions', label: 'Prompt Engineering', icon: 'EditUser02' },
+		{ id: 'tools', label: 'Tools & Skills', icon: 'Tools' },
+		{ id: 'triggers', label: 'Deployment', icon: 'Flash' },
+	];
+
 	return (
 		<>
 			<Subheader>
@@ -303,12 +303,30 @@ const AgentBuilderPage = () => {
 					</div>
 				</SubheaderLeft>
 				<SubheaderRight>
-					<div className='hidden items-center gap-2 rounded-full bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-600 md:flex dark:bg-zinc-900 dark:text-zinc-400'>
+					<div className='flex items-center gap-1.5 rounded-2xl bg-zinc-100 p-1.5 dark:bg-zinc-900'>
+						{navItems.map((item) => (
+							<button
+								key={item.id}
+								type='button'
+								onClick={() => setActiveSection(item.id)}
+								className={classNames(
+									'flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all',
+									activeSection === item.id
+										? 'bg-white text-primary-500 shadow-md shadow-black/5 dark:bg-zinc-800'
+										: 'text-zinc-500 hover:bg-zinc-200/50 dark:hover:bg-zinc-800/50',
+								)}>
+								<Icon icon={item.icon} size='text-sm' />
+								{item.label}
+							</button>
+						))}
+					</div>
+					<SubheaderSeparator />
+					<div className='hidden items-center gap-2 rounded-full bg-zinc-100 px-4 py-2 text-[10px] font-bold text-zinc-600 md:flex dark:bg-zinc-900 dark:text-zinc-400'>
 						<span className='bg-primary-500 relative flex h-2 w-2'>
 							<span className='bg-primary-500 absolute inline-flex h-full w-full animate-ping rounded-full opacity-75' />
 							<span className='bg-primary-500 relative inline-flex h-2 w-2 rounded-full' />
 						</span>
-						{completion}% ready
+						{completion}%
 					</div>
 					<Badge
 						variant='soft'
@@ -322,10 +340,7 @@ const AgentBuilderPage = () => {
 						dimension='sm'
 						icon={isSettingsOpen ? 'SidebarRight01' : 'SidebarLeft01'}
 						onClick={() => setIsSettingsOpen((prev) => !prev)}>
-						{isSettingsOpen ? 'Focus' : 'Edit'}
-					</Button>
-					<Button variant='outline' icon='Message02' onClick={() => jumpToSection('test')}>
-						Test
+						{isSettingsOpen ? 'Hide Preview' : 'Show Preview'}
 					</Button>
 					<Button
 						variant='solid'
@@ -339,50 +354,51 @@ const AgentBuilderPage = () => {
 				</SubheaderRight>
 			</Subheader>
 
-			<Container className='h-full'>
-				<BuilderHeroPartial
-					name={formik.values.name}
-					is_active={formik.values.is_active}
-					completion={completion}
-					isEditing={isEditing}
-					enabledToolCount={enabledToolIds.length}
-					selectedSkillsCount={selectedSkills.length}
-					model={formik.values.model}
-				/>
-
+			<Container className='h-full pb-8 pt-4'>
 				<div
 					className={classNames(
-						'grid min-h-full grid-cols-1 gap-4',
+						'grid h-[calc(100vh-140px)] grid-cols-1 gap-6',
 						isSettingsOpen ? 'lg:grid-cols-12' : 'grid-cols-1',
 					)}>
-					<BuilderChatPartial
-						avatarAgent={avatarAgent}
-						avatarUser={avatarUser}
-						name={formik.values.name}
-						model={formik.values.model}
-						enabledToolIds={enabledToolIds}
-						selectedSkillsCount={selectedSkills.length}
-						isSettingsOpen={isSettingsOpen}
-						jumpToSection={jumpToSection}
-					/>
+					<div
+						className={classNames(
+							'flex flex-col gap-6 overflow-y-auto pr-2',
+							isSettingsOpen ? 'lg:col-span-6' : 'mx-auto w-full max-w-5xl',
+						)}>
+						<BuilderFormPartial
+							formik={formik}
+							isEditing={isEditing}
+							isSettingsOpen={true}
+							activeSection={activeSection}
+							selfImproveInstructions={selfImproveInstructions}
+							setSelfImproveInstructions={setSelfImproveInstructions}
+							enabledToolIds={enabledToolIds}
+							toggleTool={toggleTool}
+							skills={skills}
+							isLoadingSkills={isLoadingSkills}
+							toggleSkill={toggleSkill}
+							selectedTrigger={selectedTrigger}
+							setSelectedTrigger={setSelectedTrigger}
+							followUpPrompts={followUpPrompts}
+							setFollowUpPrompts={setFollowUpPrompts}
+							addPromptRule={addPromptRule}
+						/>
+					</div>
 
-					<BuilderFormPartial
-						formik={formik}
-						isEditing={isEditing}
-						isSettingsOpen={isSettingsOpen}
-						selfImproveInstructions={selfImproveInstructions}
-						setSelfImproveInstructions={setSelfImproveInstructions}
-						enabledToolIds={enabledToolIds}
-						toggleTool={toggleTool}
-						skills={skills}
-						isLoadingSkills={isLoadingSkills}
-						toggleSkill={toggleSkill}
-						selectedTrigger={selectedTrigger}
-						setSelectedTrigger={setSelectedTrigger}
-						followUpPrompts={followUpPrompts}
-						setFollowUpPrompts={setFollowUpPrompts}
-						addPromptRule={addPromptRule}
-					/>
+					{isSettingsOpen && (
+						<div className='lg:col-span-6'>
+							<BuilderChatPartial
+								avatarAgent={avatarAgent}
+								avatarUser={avatarUser}
+								name={formik.values.name}
+								model={formik.values.model}
+								enabledToolIds={enabledToolIds}
+								selectedSkillsCount={selectedSkills.length}
+								isSettingsOpen={true}
+								jumpToSection={() => {}}
+							/>
+						</div>
+					)}
 				</div>
 			</Container>
 		</>

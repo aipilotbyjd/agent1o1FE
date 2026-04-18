@@ -12,14 +12,20 @@ export type TToolOption = {
 	group: 'built-in' | 'integration' | 'workflow';
 };
 
-export const DEFAULT_SYSTEM_PROMPT = `You are a focused operations agent.
+/**
+ * Returns the default system prompt for new agents
+ */
+export const getDefaultSystemPrompt = (): string => `You are a focused operations agent.
 
 Use the available tools only when they are relevant.
 Ask for confirmation before sending messages, editing records, deleting data, or making irreversible changes.
 When you are uncertain, ask one clear question before proceeding.
 Keep responses concise and include the next best action.`;
 
-export const AI_MODELS = [
+/**
+ * Returns the list of supported AI models
+ */
+export const getAIModels = () => [
 	{ value: 'gpt-4o', label: 'GPT-4o' },
 	{ value: 'gpt-4o-mini', label: 'GPT-4o Mini' },
 	{ value: 'gpt-4-turbo', label: 'GPT-4 Turbo' },
@@ -30,7 +36,10 @@ export const AI_MODELS = [
 	{ value: 'gemini-flash', label: 'Gemini Flash' },
 ];
 
-export const TOOL_OPTIONS: TToolOption[] = [
+/**
+ * Returns the list of available tool options
+ */
+export const getToolOptions = (): TToolOption[] => [
 	{
 		id: 'code_sandbox',
 		name: 'Code Sandbox',
@@ -89,16 +98,28 @@ export const TOOL_OPTIONS: TToolOption[] = [
 	},
 ];
 
-export const DEFAULT_TOOL_IDS = ['code_sandbox', 'skill_editing'];
+/**
+ * Returns the default tool IDs for new agents
+ */
+export const getDefaultToolIds = (): string[] => ['code_sandbox', 'skill_editing'];
 
-export const SKILL_META: Record<TAgentSkill['type'], { color: TColors; icon: string }> = {
-	api_call: { color: 'blue', icon: 'Link01' },
-	vector_search: { color: 'violet', icon: 'Search01' },
-	workflow: { color: 'emerald', icon: 'GitMerge' },
-	script: { color: 'amber', icon: 'Code' },
+/**
+ * Returns metadata for a specific skill type
+ */
+export const getSkillMeta = (type: TAgentSkill['type']) => {
+	const meta: Record<TAgentSkill['type'], { color: TColors; icon: string }> = {
+		api_call: { color: 'blue', icon: 'Link01' },
+		vector_search: { color: 'violet', icon: 'Search01' },
+		workflow: { color: 'emerald', icon: 'GitMerge' },
+		script: { color: 'amber', icon: 'Code' },
+	};
+	return meta[type];
 };
 
-export const TRIGGER_OPTIONS = [
+/**
+ * Returns the list of activation trigger options
+ */
+export const getTriggerOptions = () => [
 	{
 		id: 'manual',
 		name: 'Manual Chat',
@@ -119,12 +140,10 @@ export const TRIGGER_OPTIONS = [
 	},
 ];
 
-export const SECTION_NAV: {
-	id: TBuilderSection;
-	label: string;
-	description: string;
-	icon: string;
-}[] = [
+/**
+ * Returns the section navigation configuration
+ */
+export const getSectionNav = () => [
 	{ id: 'basics', label: 'Basics', description: 'Name, model & access', icon: 'Bot' },
 	{
 		id: 'instructions',
