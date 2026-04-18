@@ -63,6 +63,27 @@ export interface IUpdateSharingScopeDto {
 	sharing_scope: TSharingScope;
 }
 
+export interface IOAuthProvider {
+	id: string;
+	name: string;
+	configured: boolean;
+	scopes: string[];
+}
+
+export interface IOAuthAuthResponse {
+	url: string;
+	state?: string;
+}
+
+export interface IStartOAuthDto {
+	workspaceId?: string;
+	provider: string;
+	credentialName?: string;
+	redirectUrl?: string;
+	sharingScope?: TSharingScope;
+	userIds?: string[];
+}
+
 export type TCredentialSortBy = 'name' | 'created_at' | 'type' | 'last_used_at';
 export type TSortOrder = 'asc' | 'desc';
 

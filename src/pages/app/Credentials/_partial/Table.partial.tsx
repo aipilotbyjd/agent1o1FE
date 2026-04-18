@@ -25,6 +25,7 @@ interface ITablePartialProps {
 	onSortingChange: (sorting: SortingState) => void;
 	onEdit: (credential: ICredential) => void;
 	onTest: (credential: ICredential) => void;
+	onRefresh?: (credential: ICredential) => void;
 	onDelete: (credential: ICredential) => void;
 	onShare?: (credential: ICredential) => void;
 }
@@ -35,6 +36,7 @@ const TablePartial: FC<ITablePartialProps> = ({
 	onSortingChange,
 	onEdit,
 	onTest,
+	onRefresh,
 	onDelete,
 	onShare,
 }) => {
@@ -119,6 +121,13 @@ const TablePartial: FC<ITablePartialProps> = ({
 								<DropdownItem icon='TestTube01' onClick={() => onTest(credential)}>
 									Test Connection
 								</DropdownItem>
+								{credential.type === 'oauth2' && credential.can_edit && onRefresh && (
+									<DropdownItem
+										icon='Refresh'
+										onClick={() => onRefresh(credential)}>
+										Refresh OAuth Token
+									</DropdownItem>
+								)}
 								{credential.can_share && onShare && (
 									<DropdownItem
 										icon='Share01'
@@ -141,7 +150,7 @@ const TablePartial: FC<ITablePartialProps> = ({
 				header: () => 'Actions',
 			}),
 		],
-		[onEdit, onTest, onDelete, onShare],
+		[onEdit, onTest, onRefresh, onDelete, onShare],
 	);
 
 	const table = useReactTable({

@@ -297,7 +297,7 @@ const AgentBuilderPage = () => {
 					</div>
 				</SubheaderLeft>
 				<SubheaderRight>
-					<div className='flex items-center gap-1.5 rounded-2xl bg-zinc-900 p-1.5 border border-zinc-800'>
+					<div className='flex items-center gap-1.5 rounded-2xl border border-zinc-200 bg-white p-1.5 dark:border-zinc-800 dark:bg-zinc-900'>
 						{navItems.map((item) => (
 							<button
 								key={item.id}
@@ -307,7 +307,7 @@ const AgentBuilderPage = () => {
 									'flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition-colors',
 									activeSection === item.id
 										? 'bg-primary-500 text-white'
-										: 'text-zinc-400 hover:bg-zinc-800 hover:text-zinc-300',
+										: 'text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-300',
 								)}>
 								<Icon icon={item.icon} size='text-sm' />
 								{item.label}
@@ -315,7 +315,7 @@ const AgentBuilderPage = () => {
 						))}
 					</div>
 					<SubheaderSeparator />
-					<div className='hidden items-center gap-2 rounded-full bg-zinc-900 px-4 py-2 text-[10px] font-semibold text-zinc-400 md:flex border border-zinc-800'>
+					<div className='hidden items-center gap-2 rounded-full border border-zinc-200 bg-white px-4 py-2 text-[10px] font-semibold text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400 md:flex'>
 						<span className='bg-primary-500 relative flex h-2 w-2'>
 							<span className='bg-primary-500 absolute inline-flex h-full w-full animate-ping rounded-full opacity-75' />
 							<span className='bg-primary-500 relative inline-flex h-2 w-2 rounded-full' />

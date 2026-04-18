@@ -10,7 +10,19 @@ import type {
 	IShareCredentialDto,
 	IUpdateSharingScopeDto,
 	ICredentialFilters,
+	IOAuthProvider,
+	IOAuthAuthResponse,
+	IStartOAuthDto,
 } from '@/types/credential.type';
+
+const buildOAuthAuthorizeParams = (params: IStartOAuthDto): string => {
+	const searchParams = new URLSearchParams();
+	if (params.credentialName) searchParams.set('credential_name', params.credentialName);
+	if (params.redirectUrl) searchParams.set('redirect_url', params.redirectUrl);
+	if (params.sharingScope) searchParams.set('sharing_scope', params.sharingScope);
+	if (params.userIds?.length) searchParams.set('user_ids', params.userIds.join(','));
+	return searchParams.toString();
+};
 
 export const CredentialService = {
 	list: async (workspaceId: string, filters?: ICredentialFilters): Promise<ICredential[]> => {
@@ -82,19 +94,21 @@ export const CredentialService = {
 		return data.data;
 	},
 
-	getOAuthProviders: async (): Promise<string[]> => {
-		const { data } = await axiosClient.get<TApiResponse<string[]>>(OAuthEndpoints.PROVIDERS);
+	getOAuthProviders: async (): Promise<IOAuthProvider[]> => {
+		const { data } = await axiosClient.get<TApiResponse<IOAuthProvider[]>>(OAuthEndpoints.PROVIDERS);
 		return data.data;
 	},
 
 	getOAuthAuthorizeUrl: async (
 		workspaceId: string,
-		provider: string,
-	): Promise<{ url: string }> => {
-		const { data } = await axiosClient.get<TApiResponse<{ url: string }>>(
-			OAuthEndpoints.AUTHORIZE(workspaceId, provider),
+		params: string | IStartOAuthDto,
+	): Promise<IOAuthAuthResponse> => {
+		const normalizedParams =
+			typeof params === 'string' ? { provider: params } : { ...params, workspaceId };
+		const query = buildOAuthAuthorizeParams(normalizedParams);
+		const { data } = await axiosClient.get<TApiResponse<IOAuthAuthResponse>>(
+			`${OAuthEndpoints.AUTHORIZE(workspaceId, normalizedParams.provider)}${query ? `?${query}` : ''}`,
 		);
 		return data.data;
 	},
 };
-

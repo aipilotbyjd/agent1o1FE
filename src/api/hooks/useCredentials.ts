@@ -8,6 +8,7 @@ import type {
 	IUpdateCredentialDto,
 	IShareCredentialDto,
 	IUpdateSharingScopeDto,
+	IStartOAuthDto,
 } from '@/types/credential.type';
 
 // ── List ──────────────────────────────────────────────
@@ -136,15 +137,24 @@ export const useUpdateSharingScope = (workspaceId: string | undefined) => {
 };
 
 // ── OAuth Providers ───────────────────────────────────
-export const useFetchOAuthProviders = () =>
+export const useFetchOAuthProviders = (workspaceId?: string) =>
 	useQuery({
-		queryKey: ['oauth', 'providers'],
+		queryKey: ['oauth', 'providers', workspaceId],
 		queryFn: () => CredentialService.getOAuthProviders(),
+		enabled: !!workspaceId,
+		staleTime: 5 * 60 * 1000,
+	});
+
+// ── Start OAuth Flow ──────────────────────────────────
+export const useStartOAuth = (workspaceId: string | undefined) =>
+	useMutation({
+		mutationFn: (params: IStartOAuthDto) =>
+			CredentialService.getOAuthAuthorizeUrl(params.workspaceId || workspaceId!, params),
 	});
 
 // ── Get OAuth Authorize URL ───────────────────────────
 export const useGetOAuthAuthorizeUrl = (workspaceId: string | undefined) =>
 	useMutation({
-		mutationFn: (provider: string) =>
-			CredentialService.getOAuthAuthorizeUrl(workspaceId!, provider),
+		mutationFn: (params: string | IStartOAuthDto) =>
+			CredentialService.getOAuthAuthorizeUrl(workspaceId!, params),
 	});

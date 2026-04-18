@@ -1,5 +1,5 @@
 import { useOutletContext } from 'react-router';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Container from '@/components/layout/Container';
 import Subheader, {
 	SubheaderLeft,
@@ -17,7 +17,10 @@ import {
 	useFetchCredential,
 	useFetchCredentials,
 	useDeleteCredential,
+	useFetchOAuthProviders,
+	useRefreshCredentialToken,
 	useShareCredential,
+	useStartOAuth,
 	useTestCredential,
 	useUnshareCredential,
 	useUpdateCredential,
@@ -38,7 +41,6 @@ import {
 import { toast } from 'react-toastify';
 import { useCurrentWorkspaceId } from '@/context/workspaceContext';
 
-// Partials
 import FiltersPartial from './_partial/Filters.partial';
 import TablePartial from './_partial/Table.partial';
 import EmptyStatePartial from './_partial/EmptyState.partial';
@@ -52,11 +54,9 @@ export interface OutletContextType {
 }
 
 const CredentialsListPage = () => {
-	// Get active workspace from context
 	const workspaceId = useCurrentWorkspaceId() || undefined;
 	const { userData } = useAuth();
 
-	// Filter state
 	const [searchQuery, setSearchQuery] = useState('');
 	const [typeFilter, setTypeFilter] = useState<TCredentialType | ''>('');
 	const [sortBy, setSortBy] = useState<TCredentialSortBy>('created_at');
@@ -64,14 +64,10 @@ const CredentialsListPage = () => {
 	const [isCredentialModalOpen, setIsCredentialModalOpen] = useState(false);
 	const [editingCredential, setEditingCredential] = useState<ICredential | null>(null);
 	const [sharingCredential, setSharingCredential] = useState<ICredential | null>(null);
-
-	// Table sorting state
 	const [sorting, setSorting] = useState<SortingState>([{ id: 'created_at', desc: true }]);
 
-	// Check if any filter is active
 	const hasFilters = searchQuery || typeFilter;
 
-	// Build filters object for API
 	const filters: ICredentialFilters = useMemo(
 		() => ({
 			...(searchQuery && { search: searchQuery }),
@@ -82,7 +78,6 @@ const CredentialsListPage = () => {
 		[searchQuery, typeFilter, sortBy, sortOrder],
 	);
 
-	// API hooks
 	const { data: credentials, isLoading, isError, refetch } = useFetchCredentials(workspaceId, filters);
 	const { data: credentialDetail, isLoading: isCredentialDetailLoading } = useFetchCredential(
 		workspaceId,
@@ -90,40 +85,81 @@ const CredentialsListPage = () => {
 	);
 	const { data: sharingCredentialDetail, isLoading: isSharingCredentialDetailLoading } =
 		useFetchCredential(workspaceId, sharingCredential?.id);
-	const { data: members = [] } = useFetchMembers(workspaceId);
+	const { data: members = [], isLoading: isMembersLoading } = useFetchMembers(workspaceId);
+	const { data: oauthProviders = [] } = useFetchOAuthProviders(workspaceId);
+
 	const createCredential = useCreateCredential(workspaceId);
 	const updateCredential = useUpdateCredential(workspaceId);
 	const deleteCredential = useDeleteCredential(workspaceId);
 	const testCredential = useTestCredential(workspaceId);
+	const refreshCredentialToken = useRefreshCredentialToken(workspaceId);
 	const shareCredentialMutation = useShareCredential(workspaceId);
 	const unshareCredentialMutation = useUnshareCredential(workspaceId);
 	const updateSharingScope = useUpdateSharingScope(workspaceId);
+	const startOAuth = useStartOAuth(workspaceId);
+
+	const configuredOAuthProviders = useMemo(
+		() => oauthProviders.filter((provider) => provider.configured).map((provider) => provider.id),
+		[oauthProviders],
+	);
 
 	const { setHeaderLeft } = useOutletContext<OutletContextType>();
 
-	// Set breadcrumb
 	useEffect(() => {
 		setHeaderLeft(<span className='font-semibold'>Credentials</span>);
 		return () => setHeaderLeft(undefined);
 	}, [setHeaderLeft]);
 
-	const handleTest = async (credential: ICredential) => {
-		try {
-			await testCredential.mutateAsync(credential.id);
-			toast.success('Connection test successful!');
-		} catch (error) {
-			toast.error('Connection test failed');
+	useEffect(() => {
+		const params = new URLSearchParams(window.location.search);
+		const oauthStatus = params.get('oauth');
+		const success = params.get('success');
+		const credentialId = params.get('credential_id');
+
+		if (oauthStatus === 'success' || success === 'true' || credentialId) {
+			if (window.opener) {
+				window.opener.postMessage(
+					{ type: 'oauth_callback', status: 'success', credentialId },
+					window.location.origin,
+				);
+				window.close();
+				return;
+			}
+
+			toast.success('OAuth credential connected');
+			refetch();
+			window.history.replaceState({}, '', window.location.pathname);
 		}
+
+		if (oauthStatus === 'error') {
+			const errorDesc =
+				params.get('error_description') || params.get('error') || 'OAuth authentication failed';
+
+			if (window.opener) {
+				window.opener.postMessage(
+					{ type: 'oauth_callback', status: 'error', error: errorDesc },
+					window.location.origin,
+				);
+				window.close();
+				return;
+			}
+
+			toast.error(`OAuth failed: ${errorDesc}`);
+			window.history.replaceState({}, '', window.location.pathname);
+		}
+	}, [refetch]);
+
+	const handleTest = async (credential: ICredential) => {
+		await testCredential.mutateAsync(credential.id);
+	};
+
+	const handleRefresh = async (credential: ICredential) => {
+		await refreshCredentialToken.mutateAsync(credential.id);
 	};
 
 	const handleDelete = async (credential: ICredential) => {
 		if (confirm(`Are you sure you want to delete "${credential.name}"?`)) {
-			try {
-				await deleteCredential.mutateAsync(credential.id);
-				toast.success('Credential deleted successfully');
-			} catch (error) {
-				toast.error('Failed to delete credential');
-			}
+			await deleteCredential.mutateAsync(credential.id);
 		}
 	};
 
@@ -137,19 +173,115 @@ const CredentialsListPage = () => {
 		setIsCredentialModalOpen(true);
 	};
 
-	const handleCredentialSubmit = async (
-		values: ICreateCredentialDto | IUpdateCredentialDto,
-	) => {
-		if (editingCredential) {
-			await updateCredential.mutateAsync({
-				id: editingCredential.id,
-				dto: values as IUpdateCredentialDto,
-			});
-		} else {
-			await createCredential.mutateAsync(values as ICreateCredentialDto);
-		}
+	const handleCloseCredentialModal = () => {
 		setIsCredentialModalOpen(false);
 		setEditingCredential(null);
+	};
+
+	const handleUpdateCredential = async (values: IUpdateCredentialDto) => {
+		if (!editingCredential) return;
+
+		await updateCredential.mutateAsync({
+			id: editingCredential.id,
+			dto: values,
+		});
+		handleCloseCredentialModal();
+	};
+
+	const handleStartOAuth = async (
+		values: ICreateCredentialDto,
+		selectedUserIds?: string[],
+	) => {
+		if (!workspaceId) return;
+
+		const provider = values.data.provider;
+		if (typeof provider !== 'string') {
+			toast.error('OAuth provider is missing');
+			return;
+		}
+
+		const response = await startOAuth.mutateAsync({
+			provider,
+			credentialName: values.name,
+			redirectUrl: `${window.location.origin}/app/oauth/callback`,
+			sharingScope: values.sharing_scope,
+			userIds: selectedUserIds,
+		});
+
+		const width = 600;
+		const height = 700;
+		const left = window.screenX + (window.outerWidth - width) / 2;
+		const top = window.screenY + (window.outerHeight - height) / 2;
+		const popup = window.open(
+			response.url,
+			'oauth_popup',
+			`width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,scrollbars=yes,resizable=yes`,
+		);
+
+		if (!popup) {
+			toast.error('Allow popups to connect OAuth credentials');
+			return;
+		}
+		const popupWindow = popup;
+
+		const checkPopupClosed = window.setInterval(() => {
+			if (popupWindow.closed) {
+				window.clearInterval(checkPopupClosed);
+				window.removeEventListener('message', handleMessage);
+				refetch();
+			}
+		}, 500);
+
+		const timeout = window.setTimeout(
+			() => {
+				window.clearInterval(checkPopupClosed);
+				window.removeEventListener('message', handleMessage);
+			},
+			5 * 60 * 1000,
+		);
+
+		function handleMessage(event: MessageEvent) {
+			if (event.origin !== window.location.origin) return;
+			if (event.data?.type !== 'oauth_callback') return;
+
+			window.clearInterval(checkPopupClosed);
+			window.clearTimeout(timeout);
+			window.removeEventListener('message', handleMessage);
+			popupWindow.close();
+
+			if (event.data.status === 'success') {
+				toast.success('OAuth credential connected');
+				handleCloseCredentialModal();
+				refetch();
+			} else {
+				toast.error(event.data.error || 'OAuth authentication failed');
+			}
+		}
+
+		window.addEventListener('message', handleMessage);
+	};
+
+	const handleCreateCredential = async (
+		values: ICreateCredentialDto,
+		selectedUserIds?: string[],
+	) => {
+		if (values.type === 'oauth2' && values.data.provider) {
+			try {
+				await handleStartOAuth(values, selectedUserIds);
+			} catch {
+				toast.error('Failed to start OAuth flow');
+			}
+			return;
+		}
+
+		const credential = await createCredential.mutateAsync(values);
+		if (values.sharing_scope === 'specific' && selectedUserIds?.length) {
+			await shareCredentialMutation.mutateAsync({
+				id: credential.id,
+				dto: { user_ids: selectedUserIds },
+			});
+		}
+		handleCloseCredentialModal();
 	};
 
 	const handleShareSubmit = async ({
@@ -259,6 +391,7 @@ const CredentialsListPage = () => {
 							onSortingChange={setSorting}
 							onEdit={handleEdit}
 							onTest={handleTest}
+							onRefresh={handleRefresh}
 							onDelete={handleDelete}
 							onShare={(credential) => setSharingCredential(credential)}
 						/>
@@ -267,15 +400,20 @@ const CredentialsListPage = () => {
 			</Container>
 			<CredentialModalPartial
 				isOpen={isCredentialModalOpen}
-				onClose={() => {
-					setIsCredentialModalOpen(false);
-					setEditingCredential(null);
-				}}
-				onSubmit={handleCredentialSubmit}
-				credential={credentialDetail}
-				isEditing={!!editingCredential}
-				isLoading={createCredential.isPending || updateCredential.isPending}
-				isDetailLoading={!!editingCredential && isCredentialDetailLoading}
+				onClose={handleCloseCredentialModal}
+				onSave={handleCreateCredential}
+				onUpdate={handleUpdateCredential}
+				editCredential={credentialDetail}
+				isFetchingCredential={!!editingCredential && isCredentialDetailLoading}
+				isLoading={
+					createCredential.isPending ||
+					updateCredential.isPending ||
+					startOAuth.isPending ||
+					shareCredentialMutation.isPending
+				}
+				configuredOAuthProviders={configuredOAuthProviders}
+				workspaceMembers={members}
+				isLoadingMembers={isMembersLoading}
 			/>
 			<CredentialShareModalPartial
 				isOpen={!!sharingCredential}

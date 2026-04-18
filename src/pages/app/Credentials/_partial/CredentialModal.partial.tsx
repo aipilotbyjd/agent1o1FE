@@ -1,277 +1,687 @@
-import { FC, useEffect } from 'react';
-import { useFormik } from 'formik';
-import * as Yup from 'yup';
+import { FC, useEffect, useMemo, useState } from 'react';
+import classNames from 'classnames';
+import { AnimatePresence, motion } from 'framer-motion';
 import Modal, { ModalBody, ModalFooter, ModalHeader } from '@/components/ui/Modal';
 import Button from '@/components/ui/Button';
 import Input from '@/components/form/Input';
-import Label from '@/components/form/Label';
-import Select from '@/components/form/Select';
 import Textarea from '@/components/form/Textarea';
+import FieldWrap from '@/components/form/FieldWrap';
+import Badge from '@/components/ui/Badge';
+import Spinner from '@/components/ui/Spinner';
 import Icon from '@/components/icon/Icon';
+import {
+	IServiceWithStatus,
+	SERVICES,
+	TServiceCategory,
+	searchServices,
+} from '@/config/services.config';
 import type {
 	ICredentialDetail,
 	ICreateCredentialDto,
 	IUpdateCredentialDto,
-	TCredentialType,
 	TSharingScope,
 } from '@/types/credential.type';
+import type { TWorkspaceMember } from '@/types/workspace.type';
 
-type TCredentialFormValues = {
-	name: string;
-	type: TCredentialType;
-	description: string;
-	sharing_scope: TSharingScope;
-	dataJson: string;
-};
+type TAddStep = 'select' | 'configure';
 
 interface ICredentialModalPartialProps {
 	isOpen: boolean;
 	onClose: () => void;
-	onSubmit: (values: ICreateCredentialDto | IUpdateCredentialDto) => Promise<void>;
-	credential?: ICredentialDetail | null;
-	isEditing?: boolean;
+	onSave: (values: ICreateCredentialDto, selectedUserIds?: string[]) => Promise<void> | void;
+	onUpdate?: (values: IUpdateCredentialDto) => Promise<void> | void;
 	isLoading?: boolean;
-	isDetailLoading?: boolean;
+	configuredOAuthProviders?: string[];
+	workspaceMembers?: TWorkspaceMember[];
+	isLoadingMembers?: boolean;
+	editCredential?: ICredentialDetail | null;
+	isFetchingCredential?: boolean;
 }
 
-const CREDENTIAL_TYPES: { value: TCredentialType; label: string; helper: string }[] = [
-	{ value: 'api_key', label: 'API Key', helper: 'Token or key-based authentication' },
-	{ value: 'oauth2', label: 'OAuth 2', helper: 'OAuth credentials or connected account metadata' },
-	{ value: 'basic', label: 'Basic Auth', helper: 'Username and password' },
-	{ value: 'bearer', label: 'Bearer Token', helper: 'Authorization bearer token' },
-	{ value: 'custom', label: 'Custom', helper: 'Any provider-specific credential shape' },
+const CATEGORY_ORDER: TServiceCategory[] = [
+	'AI',
+	'Productivity',
+	'Communication',
+	'Development',
+	'Database',
+	'CRM',
+	'Payment',
+	'File Storage',
+	'Other',
 ];
 
-const SHARING_SCOPES: { value: TSharingScope; label: string }[] = [
-	{ value: 'private', label: 'Private' },
-	{ value: 'workspace', label: 'Workspace' },
-	{ value: 'specific', label: 'Specific members' },
-];
-
-const parseJsonObject = (value: string): Record<string, unknown> => {
-	const parsed = JSON.parse(value);
-	if (!parsed || Array.isArray(parsed) || typeof parsed !== 'object') {
-		throw new Error('Credential data must be a JSON object');
-	}
-	return parsed as Record<string, unknown>;
+const CATEGORY_ICONS: Record<TServiceCategory, string> = {
+	AI: 'AiBrain01',
+	Productivity: 'Task01',
+	Communication: 'Message01',
+	Development: 'SourceCodeCircle',
+	Database: 'Database01',
+	CRM: 'UserGroup',
+	Payment: 'CreditCard',
+	'File Storage': 'Folder01',
+	Other: 'Settings02',
 };
 
-const buildCredentialSchema = (isEditing: boolean) =>
-	Yup.object({
-		name: Yup.string().min(1).max(100).required('Credential name is required'),
-		type: Yup.string()
-			.oneOf(CREDENTIAL_TYPES.map((type) => type.value))
-			.required('Credential type is required'),
-		description: Yup.string().max(500),
-		sharing_scope: Yup.string()
-			.oneOf(SHARING_SCOPES.map((scope) => scope.value))
-			.required('Sharing scope is required'),
-		dataJson: Yup.string().test(
-			'json-object',
-			isEditing
-				? 'Credential data must be a valid JSON object when provided'
-				: 'Credential data must be a valid JSON object',
-			(value) => {
-				if (!value?.trim()) return isEditing;
-				try {
-					parseJsonObject(value);
-					return true;
-				} catch {
-					return false;
-				}
-			},
-		),
-	});
+const SHARING_OPTIONS: { value: TSharingScope; label: string; icon: string }[] = [
+	{ value: 'private', label: 'Private', icon: 'Lock' },
+	{ value: 'workspace', label: 'Workspace', icon: 'UserGroup' },
+	{ value: 'specific', label: 'Specific people', icon: 'UserMultiple02' },
+];
 
-const getInitialValues = (credential?: ICredentialDetail | null): TCredentialFormValues => ({
-	name: credential?.name || '',
-	type: credential?.type || 'api_key',
-	description: credential?.description || '',
-	sharing_scope: credential?.sharing_scope || 'private',
-	dataJson: credential?.data ? JSON.stringify(credential.data, null, 2) : '',
-});
+const getCredentialDataSource = (credential: ICredentialDetail): Record<string, unknown> => {
+	if (credential.type === 'custom' && credential.data?.data && typeof credential.data.data === 'object') {
+		return credential.data.data as Record<string, unknown>;
+	}
+	return credential.data || {};
+};
+
+const findServiceForCredential = (credential: ICredentialDetail): IServiceWithStatus | null => {
+	const service =
+		SERVICES.find(
+			(candidate) =>
+				candidate.oauthProvider === credential.provider ||
+				candidate.id === credential.provider,
+		) ||
+		SERVICES.find(
+			(candidate) =>
+				candidate.credentialType === credential.type &&
+				(credential.type !== 'oauth2' || candidate.authType === 'oauth'),
+		);
+
+	return service ? { ...service, isAvailable: true, isOAuthConfigured: service.authType === 'oauth' } : null;
+};
 
 const CredentialModalPartial: FC<ICredentialModalPartialProps> = ({
 	isOpen,
 	onClose,
-	onSubmit,
-	credential,
-	isEditing = !!credential,
-	isLoading,
-	isDetailLoading,
+	onSave,
+	onUpdate,
+	isLoading = false,
+	configuredOAuthProviders = [],
+	workspaceMembers = [],
+	isLoadingMembers = false,
+	editCredential = null,
+	isFetchingCredential = false,
 }) => {
-	const formik = useFormik<TCredentialFormValues>({
-		initialValues: getInitialValues(credential),
-		validationSchema: buildCredentialSchema(isEditing),
-		enableReinitialize: true,
-		onSubmit: async (values, { resetForm }) => {
-			const basePayload = {
-				name: values.name.trim(),
-				description: values.description.trim() || undefined,
-			};
+	const isEditMode = !!editCredential;
+	const [addStep, setAddStep] = useState<TAddStep>('select');
+	const [selectedService, setSelectedService] = useState<IServiceWithStatus | null>(null);
+	const [searchQuery, setSearchQuery] = useState('');
+	const [credentialName, setCredentialName] = useState('');
+	const [description, setDescription] = useState('');
+	const [formData, setFormData] = useState<Record<string, string | number>>({});
+	const [sharingScope, setSharingScope] = useState<TSharingScope>('workspace');
+	const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
+	const [memberSearchQuery, setMemberSearchQuery] = useState('');
 
-			const data = values.dataJson.trim()
-				? parseJsonObject(values.dataJson)
-				: undefined;
+	const servicesWithStatus: IServiceWithStatus[] = useMemo(
+		() =>
+			SERVICES.map((service) => {
+				const isOAuthService = service.authType === 'oauth';
+				const isOAuthConfigured = service.oauthProvider
+					? configuredOAuthProviders.includes(service.oauthProvider)
+					: undefined;
+				return {
+					...service,
+					isOAuthConfigured,
+					isAvailable: !isOAuthService || !!isOAuthConfigured,
+				};
+			}),
+		[configuredOAuthProviders],
+	);
 
-			const payload = isEditing
-				? ({ ...basePayload, ...(data ? { data } : {}) } satisfies IUpdateCredentialDto)
-				: ({
-						...basePayload,
-						type: values.type,
-						sharing_scope: values.sharing_scope,
-						data: data || {},
-					} satisfies ICreateCredentialDto);
+	const filteredServices = useMemo(() => {
+		const services = searchQuery
+			? searchServices(searchQuery).map(
+					(service) =>
+						servicesWithStatus.find((candidate) => candidate.id === service.id) || {
+							...service,
+							isAvailable: true,
+						},
+				)
+			: servicesWithStatus;
 
-			await onSubmit(payload);
-			resetForm();
-		},
-	});
+		return services;
+	}, [searchQuery, servicesWithStatus]);
 
-	const selectedType = CREDENTIAL_TYPES.find((type) => type.value === formik.values.type);
+	const servicesByCategory = useMemo(() => {
+		const grouped: Partial<Record<TServiceCategory, IServiceWithStatus[]>> = {};
+		filteredServices.forEach((service) => {
+			grouped[service.category] = [...(grouped[service.category] || []), service];
+		});
+		return grouped;
+	}, [filteredServices]);
+
+	const filteredMembers = useMemo(() => {
+		const query = memberSearchQuery.trim().toLowerCase();
+		if (!query) return workspaceMembers;
+		return workspaceMembers.filter(
+			(member) =>
+				member.name.toLowerCase().includes(query) ||
+				member.email.toLowerCase().includes(query),
+		);
+	}, [memberSearchQuery, workspaceMembers]);
 
 	useEffect(() => {
-		if (!isOpen) formik.resetForm();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [isOpen]);
+		if (!isOpen) return;
+		if (!editCredential) {
+			resetState();
+			return;
+		}
+
+		const service = findServiceForCredential(editCredential);
+		setSelectedService(service);
+		setAddStep('configure');
+		setCredentialName(editCredential.name);
+		setDescription(editCredential.description || '');
+		setSharingScope(editCredential.sharing_scope);
+
+		const dataSource = getCredentialDataSource(editCredential);
+		const nextFormData: Record<string, string | number> = {};
+		Object.entries(dataSource).forEach(([key, value]) => {
+			if (typeof value === 'string' || typeof value === 'number') nextFormData[key] = value;
+		});
+		setFormData(nextFormData);
+	}, [editCredential, isOpen]);
+
+	const resetState = () => {
+		setAddStep('select');
+		setSelectedService(null);
+		setSearchQuery('');
+		setCredentialName('');
+		setDescription('');
+		setFormData({});
+		setSharingScope('workspace');
+		setSelectedUserIds([]);
+		setMemberSearchQuery('');
+	};
 
 	const handleClose = () => {
-		formik.resetForm();
+		resetState();
 		onClose();
 	};
 
-	return (
-		<Modal isOpen={isOpen} setIsOpen={handleClose} size='lg' isScrollable>
-			<ModalHeader>
-				<div className='flex items-center gap-3'>
-					<div className='flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30'>
-						<Icon icon='Key01' color='blue' />
+	const handleServiceSelect = (service: IServiceWithStatus) => {
+		if (!service.isAvailable) return;
+
+		const nextData: Record<string, string | number> = {};
+		service.fields?.forEach((field) => {
+			if (field.defaultValue !== undefined) nextData[field.name] = field.defaultValue;
+		});
+
+		setSelectedService(service);
+		setCredentialName(service.defaultName || `My ${service.name}`);
+		setDescription('');
+		setFormData(nextData);
+		setAddStep('configure');
+	};
+
+	const handleBack = () => {
+		if (isEditMode) {
+			handleClose();
+			return;
+		}
+		setAddStep('select');
+		setSelectedService(null);
+	};
+
+	const handleFieldChange = (fieldName: string, value: string | number) => {
+		setFormData((current) => ({ ...current, [fieldName]: value }));
+	};
+
+	const toggleUserSelection = (userId: string) => {
+		setSelectedUserIds((current) =>
+			current.includes(userId)
+				? current.filter((id) => id !== userId)
+				: [...current, userId],
+		);
+	};
+
+	const buildCredentialData = () => {
+		if (!selectedService) return {};
+
+		const credentialData: Record<string, unknown> = {};
+		selectedService.fields?.forEach((field) => {
+			const value = formData[field.name];
+			if (value !== undefined && value !== '') credentialData[field.name] = value;
+		});
+
+		return selectedService.credentialType === 'custom'
+			? { data: credentialData }
+			: credentialData;
+	};
+
+	const handleSubmit = async () => {
+		if (!selectedService) return;
+
+		if (isEditMode && onUpdate) {
+			await onUpdate({
+				name: credentialName.trim(),
+				description: description.trim() || undefined,
+				...(selectedService.authType !== 'oauth' ? { data: buildCredentialData() } : {}),
+			});
+			return;
+		}
+
+		await onSave(
+			{
+				name: credentialName.trim(),
+				type: selectedService.credentialType,
+				description: description.trim() || undefined,
+				data: buildCredentialData(),
+				sharing_scope: sharingScope,
+			},
+			sharingScope === 'specific' ? selectedUserIds : undefined,
+		);
+	};
+
+	const handleOAuthConnect = async () => {
+		if (!selectedService?.oauthProvider) return;
+		await onSave(
+			{
+				name: credentialName.trim(),
+				type: 'oauth2',
+				description: description.trim() || undefined,
+				data: { provider: selectedService.oauthProvider },
+				sharing_scope: sharingScope,
+			},
+			sharingScope === 'specific' ? selectedUserIds : undefined,
+		);
+	};
+
+	const isFormValid = useMemo(() => {
+		if (!selectedService || !credentialName.trim()) return false;
+		if (selectedService.authType === 'oauth') return true;
+		return (
+			selectedService.fields?.every((field) => {
+				if (!field.required) return true;
+				const value = formData[field.name];
+				return value !== undefined && value !== '';
+			}) ?? true
+		);
+	}, [credentialName, formData, selectedService]);
+
+	const showFooter =
+		addStep === 'configure' &&
+		!!selectedService &&
+		(selectedService.authType !== 'oauth' || isEditMode);
+
+	const renderServiceCard = (service: IServiceWithStatus) => {
+		const isDisabled = !service.isAvailable;
+		const isSelected = selectedService?.id === service.id;
+
+		return (
+			<button
+				key={service.id}
+				type='button'
+				disabled={isDisabled}
+				onClick={() => handleServiceSelect(service)}
+				className={classNames(
+					'relative flex min-h-24 items-start gap-3 rounded-lg border p-3 text-left transition-colors',
+					isSelected
+						? 'border-blue-500 bg-blue-50 dark:bg-blue-950/20'
+						: isDisabled
+							? 'cursor-not-allowed border-zinc-200 bg-zinc-100 opacity-60 dark:border-zinc-800 dark:bg-zinc-900'
+							: 'border-zinc-200 hover:border-blue-400 dark:border-zinc-800 dark:hover:border-blue-500',
+				)}>
+				<div className='flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300'>
+					<Icon icon={service.icon} className='text-xl' />
+				</div>
+				<div className='min-w-0 flex-1'>
+					<div className='truncate font-semibold text-zinc-900 dark:text-white'>
+						{service.name}
 					</div>
-					<div>
-						<span>{isEditing ? 'Edit Credential' : 'New Credential'}</span>
-						<p className='text-sm font-normal text-zinc-500'>
-							Store connection details for workflows and agents.
-						</p>
+					<div className='mt-1 line-clamp-2 text-xs text-zinc-500'>
+						{service.description || service.category}
+					</div>
+				</div>
+				{service.authType === 'oauth' && (
+					<Badge
+						variant={service.isAvailable ? 'soft' : 'outline'}
+						color={service.isAvailable ? 'violet' : 'zinc'}
+						className='absolute top-2 right-2 text-[10px]'>
+						{service.isAvailable ? 'OAuth' : 'Setup needed'}
+					</Badge>
+				)}
+			</button>
+		);
+	};
+
+	const renderServiceSelector = () => (
+		<div className='flex h-full flex-col'>
+			<div className='border-b border-zinc-200 p-4 dark:border-zinc-800'>
+				<FieldWrap firstSuffix={<Icon icon='Search02' className='text-zinc-400' />}>
+					<Input
+						name='credential-service-search'
+						variant='solid'
+						dimension='sm'
+						placeholder='Search services...'
+						value={searchQuery}
+						onChange={(event) => setSearchQuery(event.target.value)}
+					/>
+				</FieldWrap>
+			</div>
+			<div className='min-h-0 flex-1 overflow-y-auto p-4'>
+				{searchQuery ? (
+					<div className='grid grid-cols-1 gap-3 md:grid-cols-2'>
+						{filteredServices.map(renderServiceCard)}
+					</div>
+				) : (
+					<div className='space-y-6'>
+						{CATEGORY_ORDER.filter((category) => servicesByCategory[category]?.length).map(
+							(category) => (
+								<div key={category}>
+									<div className='mb-3 flex items-center gap-2 text-sm font-semibold text-zinc-700 dark:text-zinc-300'>
+										<Icon icon={CATEGORY_ICONS[category]} className='text-zinc-400' />
+										{category}
+										<span className='text-xs font-normal text-zinc-400'>
+											{servicesByCategory[category]?.length}
+										</span>
+									</div>
+									<div className='grid grid-cols-1 gap-3 md:grid-cols-2'>
+										{servicesByCategory[category]?.map(renderServiceCard)}
+									</div>
+								</div>
+							),
+						)}
+					</div>
+				)}
+				{filteredServices.length === 0 && (
+					<div className='py-14 text-center text-sm text-zinc-500'>No services found.</div>
+				)}
+			</div>
+		</div>
+	);
+
+	const renderSharingOptions = () => {
+		if (isEditMode) return null;
+
+		return (
+			<div className='border-t border-zinc-200 pt-5 dark:border-zinc-800'>
+				<label className='mb-3 flex items-center gap-2 text-sm font-medium text-zinc-700 dark:text-zinc-300'>
+					<Icon icon='Share01' className='text-zinc-400' />
+					Sharing
+				</label>
+				<div className='grid grid-cols-1 gap-2 md:grid-cols-3'>
+					{SHARING_OPTIONS.map((option) => (
+						<button
+							key={option.value}
+							type='button'
+							onClick={() => setSharingScope(option.value)}
+							className={classNames(
+								'flex items-center gap-2 rounded-lg border p-3 text-left text-sm transition-colors',
+								sharingScope === option.value
+									? 'border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-300'
+									: 'border-zinc-200 text-zinc-600 hover:border-zinc-300 dark:border-zinc-800 dark:text-zinc-400',
+							)}>
+							<Icon icon={option.icon} />
+							{option.label}
+						</button>
+					))}
+				</div>
+				{sharingScope === 'specific' && (
+					<div className='mt-3'>
+						<FieldWrap firstSuffix={<Icon icon='Search02' className='text-zinc-400' />}>
+							<Input
+								name='credential-member-search'
+								variant='solid'
+								dimension='sm'
+								placeholder='Search members...'
+								value={memberSearchQuery}
+								onChange={(event) => setMemberSearchQuery(event.target.value)}
+							/>
+						</FieldWrap>
+						{isLoadingMembers ? (
+							<div className='flex justify-center py-4'>
+								<Spinner color='primary' />
+							</div>
+						) : filteredMembers.length === 0 ? (
+							<div className='mt-2 rounded-lg border border-zinc-200 p-3 text-sm text-zinc-500 dark:border-zinc-800'>
+								No workspace members found.
+							</div>
+						) : (
+							<div className='mt-2 max-h-36 space-y-1 overflow-y-auto'>
+								{filteredMembers.map((member) => {
+									const isSelected = selectedUserIds.includes(member.user_id);
+									return (
+										<button
+											key={member.user_id}
+											type='button'
+											onClick={() => toggleUserSelection(member.user_id)}
+											className={classNames(
+												'flex w-full items-center justify-between rounded-lg p-2 text-left transition-colors',
+												isSelected
+													? 'bg-emerald-50 dark:bg-emerald-950/20'
+													: 'hover:bg-zinc-50 dark:hover:bg-zinc-900',
+											)}>
+											<div>
+												<div className='text-sm font-medium text-zinc-800 dark:text-zinc-100'>
+													{member.name}
+												</div>
+												<div className='text-xs text-zinc-500'>{member.email}</div>
+											</div>
+											{isSelected && <Icon icon='CheckmarkCircle02' color='emerald' />}
+										</button>
+									);
+								})}
+							</div>
+						)}
+					</div>
+				)}
+			</div>
+		);
+	};
+
+	const renderConfiguration = () => {
+		if (isFetchingCredential && isEditMode) {
+			return (
+				<div className='flex h-full items-center justify-center'>
+					<Spinner color='primary' />
+				</div>
+			);
+		}
+
+		if (!selectedService) {
+			return (
+				<div className='flex h-full items-center justify-center p-6 text-center text-sm text-zinc-500'>
+					Select a service to configure credentials.
+				</div>
+			);
+		}
+
+		const isOAuth = selectedService.authType === 'oauth';
+
+		return (
+			<div className='space-y-5 overflow-y-auto p-6'>
+				<div className='flex items-center gap-4 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800'>
+					<div className='flex h-12 w-12 items-center justify-center rounded-lg bg-blue-500 text-white'>
+						<Icon icon={selectedService.icon} className='text-2xl' />
+					</div>
+					<div className='min-w-0 flex-1'>
+						<div className='font-semibold text-zinc-900 dark:text-white'>
+							{selectedService.name}
+						</div>
+						<div className='text-sm text-zinc-500'>
+							{selectedService.description || selectedService.category}
+						</div>
+					</div>
+					<Badge variant='outline' color={isOAuth ? 'violet' : 'zinc'}>
+						{isOAuth ? 'OAuth 2.0' : selectedService.credentialType.replace('_', ' ')}
+					</Badge>
+				</div>
+
+				<div>
+					<label className='mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300'>
+						Credential name
+					</label>
+					<Input
+						name='credential-name'
+						placeholder='Production API key'
+						value={credentialName}
+						onChange={(event) => setCredentialName(event.target.value)}
+					/>
+				</div>
+
+				<div>
+					<label className='mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300'>
+						Description
+					</label>
+					<Textarea
+						placeholder='Where this credential is used'
+						value={description}
+						onChange={(event) => setDescription(event.target.value)}
+						rows={2}
+					/>
+				</div>
+
+				{isOAuth ? (
+					<div className='space-y-4'>
+						<div className='rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-700 dark:border-blue-900 dark:bg-blue-950/20 dark:text-blue-300'>
+							{isEditMode
+								? 'OAuth credentials can update name and description here. Reconnect by creating a new credential or using refresh from the table action.'
+								: `Connect ${selectedService.name} through the secure OAuth 2.0 flow.`}
+						</div>
+						{!isEditMode && (
+							<Button
+								variant='solid'
+								color='primary'
+								icon='Link01'
+								className='w-full'
+								isLoading={isLoading}
+								isDisable={!isFormValid}
+								onClick={handleOAuthConnect}>
+								Connect with {selectedService.name}
+							</Button>
+						)}
+						{editCredential?.token_expires_at && (
+							<div className='rounded-lg border border-zinc-200 p-4 text-sm dark:border-zinc-800'>
+								<span className='text-zinc-500'>Token expires: </span>
+								<span className='font-medium text-zinc-900 dark:text-white'>
+									{new Date(editCredential.token_expires_at * 1000).toLocaleString()}
+								</span>
+							</div>
+						)}
+					</div>
+				) : (
+					<div className='space-y-4'>
+						{selectedService.fields?.map((field) => (
+							<div key={field.name}>
+								<label className='mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300'>
+									{field.label}
+									{field.required && <span className='text-red-500'> *</span>}
+								</label>
+								{field.type === 'textarea' ? (
+									<Textarea
+										placeholder={field.placeholder}
+										value={String(formData[field.name] ?? '')}
+										onChange={(event) =>
+											handleFieldChange(field.name, event.target.value)
+										}
+										rows={4}
+										className='font-mono text-sm'
+									/>
+								) : (
+									<Input
+										name={field.name}
+										type={field.type}
+										placeholder={field.placeholder}
+										value={String(formData[field.name] ?? '')}
+										onChange={(event) =>
+											handleFieldChange(
+												field.name,
+												field.type === 'number'
+													? Number(event.target.value)
+													: event.target.value,
+											)
+										}
+									/>
+								)}
+								{field.helpText && (
+									<p className='mt-1 text-xs text-zinc-500'>{field.helpText}</p>
+								)}
+							</div>
+						))}
+						{selectedService.helpUrl && !isEditMode && (
+							<a
+								href={selectedService.helpUrl}
+								target='_blank'
+								rel='noreferrer'
+								className='inline-flex items-center gap-2 text-sm font-medium text-blue-500 hover:text-blue-600'>
+								<Icon icon='Link01' />
+								View {selectedService.name} docs
+							</a>
+						)}
+					</div>
+				)}
+
+				{renderSharingOptions()}
+			</div>
+		);
+	};
+
+	return (
+		<Modal isOpen={isOpen} setIsOpen={handleClose} size={900} isScrollable isCentered>
+			<ModalHeader className='border-b border-zinc-200 dark:border-zinc-800'>
+				<div className='flex w-full items-center justify-between pr-4'>
+					<div className='flex items-center gap-3'>
+						{addStep === 'configure' && (
+							<Button icon='ArrowLeft01' variant='outline' dimension='sm' onClick={handleBack} />
+						)}
+						<div>
+							<span>{isEditMode ? 'Edit Credential' : addStep === 'select' ? 'Select Service' : 'Configure Credential'}</span>
+							<p className='text-sm font-normal text-zinc-500'>
+								{isEditMode
+									? 'Update credential details'
+									: 'Choose OAuth, API key, basic auth, bearer, or custom credentials'}
+							</p>
+						</div>
+					</div>
+					<div className='hidden items-center gap-2 md:flex'>
+						<Badge variant='outline' color='zinc'>
+							{SERVICES.length} services
+						</Badge>
+						<Badge variant='outline' color='violet'>
+							{configuredOAuthProviders.length} OAuth ready
+						</Badge>
 					</div>
 				</div>
 			</ModalHeader>
-			<ModalBody>
-				{isDetailLoading ? (
-					<div className='flex items-center justify-center py-16'>
-						<Icon icon='Loading03' size='text-3xl' className='animate-spin' />
-					</div>
-				) : (
-					<form id='credential-form' onSubmit={formik.handleSubmit} className='space-y-5'>
-						<div>
-							<Label htmlFor='credential-name'>Name</Label>
-							<Input
-								id='credential-name'
-								name='name'
-								placeholder='Production Stripe key'
-								value={formik.values.name}
-								onChange={formik.handleChange}
-								onBlur={formik.handleBlur}
-							/>
-							{formik.touched.name && formik.errors.name && (
-								<p className='mt-1 text-xs text-red-500'>{formik.errors.name}</p>
-							)}
-						</div>
-
-						<div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-							<div>
-								<Label htmlFor='credential-type'>Type</Label>
-								<Select
-									id='credential-type'
-									name='type'
-									value={formik.values.type}
-									disabled={isEditing}
-									onChange={formik.handleChange}
-									onBlur={formik.handleBlur}>
-									{CREDENTIAL_TYPES.map((type) => (
-										<option key={type.value} value={type.value}>
-											{type.label}
-										</option>
-									))}
-								</Select>
-								<p className='mt-1 text-xs text-zinc-500'>
-									{isEditing
-										? selectedType?.helper || 'Credential type cannot be changed.'
-										: CREDENTIAL_TYPES.find((type) => type.value === formik.values.type)?.helper}
-								</p>
-							</div>
-
-							<div>
-								<Label htmlFor='sharing-scope'>Sharing</Label>
-								<Select
-									id='sharing-scope'
-									name='sharing_scope'
-									value={formik.values.sharing_scope}
-									disabled={isEditing}
-									onChange={formik.handleChange}
-									onBlur={formik.handleBlur}>
-									{SHARING_SCOPES.map((scope) => (
-										<option key={scope.value} value={scope.value}>
-											{scope.label}
-										</option>
-									))}
-								</Select>
-								<p className='mt-1 text-xs text-zinc-500'>
-									Use the share action after creation to change access.
-								</p>
-							</div>
-						</div>
-
-						<div>
-							<Label htmlFor='credential-description'>Description</Label>
-							<Textarea
-								id='credential-description'
-								name='description'
-								placeholder='Where this credential is used'
-								value={formik.values.description}
-								onChange={formik.handleChange}
-								onBlur={formik.handleBlur}
-								rows={3}
-							/>
-							{formik.touched.description && formik.errors.description && (
-								<p className='mt-1 text-xs text-red-500'>{formik.errors.description}</p>
-							)}
-						</div>
-
-						<div>
-							<Label htmlFor='credential-data'>Credential Data JSON</Label>
-							<Textarea
-								id='credential-data'
-								name='dataJson'
-								placeholder={'{\n  "api_key": "sk_live_..."\n}'}
-								value={formik.values.dataJson}
-								onChange={formik.handleChange}
-								onBlur={formik.handleBlur}
-								rows={8}
-								className='font-mono text-sm'
-							/>
-							<p className='mt-1 text-xs text-zinc-500'>
-								{isEditing
-									? 'Leave blank to keep the saved secret data unchanged.'
-									: 'Use a JSON object. Sensitive values are stored by the backend.'}
-							</p>
-							{formik.touched.dataJson && formik.errors.dataJson && (
-								<p className='mt-1 text-xs text-red-500'>{formik.errors.dataJson}</p>
-							)}
-						</div>
-					</form>
-				)}
+			<ModalBody className='p-0'>
+				<div className='h-[620px] overflow-hidden'>
+					<AnimatePresence mode='wait'>
+						{addStep === 'select' ? (
+							<motion.div
+								key='select'
+								initial={{ opacity: 0, x: -12 }}
+								animate={{ opacity: 1, x: 0 }}
+								exit={{ opacity: 0, x: 12 }}
+								className='h-full'>
+								{renderServiceSelector()}
+							</motion.div>
+						) : (
+							<motion.div
+								key='configure'
+								initial={{ opacity: 0, x: 12 }}
+								animate={{ opacity: 1, x: 0 }}
+								exit={{ opacity: 0, x: -12 }}
+								className='h-full'>
+								{renderConfiguration()}
+							</motion.div>
+						)}
+					</AnimatePresence>
+				</div>
 			</ModalBody>
-			<ModalFooter>
+			<ModalFooter className={classNames({ hidden: !showFooter })}>
 				<Button variant='outline' onClick={handleClose} isDisable={isLoading}>
 					Cancel
 				</Button>
 				<Button
 					variant='solid'
-					type='submit'
-					form='credential-form'
+					icon='Tick02'
+					onClick={handleSubmit}
 					isLoading={isLoading}
-					isDisable={!formik.isValid || isDetailLoading}>
-					{isEditing ? 'Save Credential' : 'Create Credential'}
+					isDisable={!isFormValid || isFetchingCredential}>
+					{isEditMode ? 'Save Changes' : 'Save Credential'}
 				</Button>
 			</ModalFooter>
 		</Modal>

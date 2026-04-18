@@ -85,6 +85,7 @@ export {
 	useUnshareCredential,
 	useUpdateSharingScope,
 	useFetchOAuthProviders,
+	useStartOAuth,
 	useGetOAuthAuthorizeUrl,
 } from './hooks';
 
