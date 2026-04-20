@@ -10,6 +10,8 @@ import pages from './pages';
 import MailLayout from '@/layouts/Mail.layout';
 import AppLayout from '@/layouts/App.layout';
 import AppRoutes from '@/Routes/agent1o1Pages/appRoutes';
+import EditorRoutes from '@/Routes/agent1o1Pages/editorRoutes';
+import EditorLayout from '@/layouts/Editor.layout';
 import Page404Page from '@/pages/Page404.page';
 import UnderConstructionPage from '@/pages/UnderConstruction.page';
 import DocumentationPages from '@/Routes/infoPages/documentationPages';
@@ -244,6 +246,15 @@ const router = createBrowserRouter([
 							{
 								element: <AppLayout />,
 								children: [...AppRoutes],
+							},
+						],
+					},
+					{
+						element: <Protected role='admin' />,
+						children: [
+							{
+								element: <EditorLayout />,
+								children: [...EditorRoutes],
 							},
 						],
 					},

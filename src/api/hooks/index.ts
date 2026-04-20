@@ -152,3 +152,41 @@ export {
 	useTestWebhook,
 	useFetchWebhookLogs,
 } from './useWebhooks';
+
+export {
+	useNodeTypes,
+	useNodeCategories,
+	useNodeType,
+} from './useNodeTypes';
+
+export {
+	useNotes,
+	useNote,
+	useCreateNote,
+	useUpdateNote,
+	useDeleteNote,
+} from './useNotes';
+
+export {
+	useWorkflows as useEditorWorkflows,
+	useWorkflow as useEditorWorkflow,
+	useCreateWorkflow as useEditorCreateWorkflow,
+	useUpdateWorkflow as useEditorUpdateWorkflow,
+	useDeleteWorkflow as useEditorDeleteWorkflow,
+	useExecuteWorkflow as useEditorExecuteWorkflow,
+	useActivateWorkflow as useEditorActivateWorkflow,
+	useDeactivateWorkflow as useEditorDeactivateWorkflow,
+	useDuplicateWorkflow as useEditorDuplicateWorkflow,
+	useToggleFavorite as useEditorToggleFavorite,
+	useCloneWorkflow,
+	useExportWorkflow as useEditorExportWorkflow,
+	useImportWorkflow as useEditorImportWorkflow,
+	useValidateWorkflow,
+	useTestNode,
+	useWorkflowVersions,
+	useRollbackWorkflowVersion,
+	useCompareWorkflowVersions,
+	usePinnedData,
+	useSetPinnedData,
+	useDeletePinnedData,
+} from './useWorkflowEditor';

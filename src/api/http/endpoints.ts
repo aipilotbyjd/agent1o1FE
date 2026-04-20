@@ -154,3 +154,74 @@ export const DashboardEndpoints = {
 	DATA: (workspaceId: string) => `/workspaces/${workspaceId}/dashboard`,
 	STATS: (workspaceId: string) => `/workspaces/${workspaceId}/stats`,
 } as const;
+
+export const NodeTypeEndpoints = {
+	LIST: '/node-types',
+	CATEGORIES: '/node-types/categories',
+	DETAIL: (nodeType: string) => `/node-types/${nodeType}`,
+} as const;
+
+export const NoteEndpoints = {
+	LIST: (workspaceId: string) => `/workspaces/${workspaceId}/notes`,
+	DETAIL: (workspaceId: string, noteId: string) => `/workspaces/${workspaceId}/notes/${noteId}`,
+	CREATE: (workspaceId: string) => `/workspaces/${workspaceId}/notes`,
+	UPDATE: (workspaceId: string, noteId: string) => `/workspaces/${workspaceId}/notes/${noteId}`,
+	DELETE: (workspaceId: string, noteId: string) => `/workspaces/${workspaceId}/notes/${noteId}`,
+} as const;
+
+export const AgentEndpoints = {
+	LIST: (workspaceId: string) => `/workspaces/${workspaceId}/agents`,
+	CREATE: (workspaceId: string) => `/workspaces/${workspaceId}/agents`,
+	DETAIL: (workspaceId: string, agentId: string) => `/workspaces/${workspaceId}/agents/${agentId}`,
+	UPDATE: (workspaceId: string, agentId: string) => `/workspaces/${workspaceId}/agents/${agentId}`,
+	DELETE: (workspaceId: string, agentId: string) => `/workspaces/${workspaceId}/agents/${agentId}`,
+	DUPLICATE: (workspaceId: string, agentId: string) => `/workspaces/${workspaceId}/agents/${agentId}/duplicate`,
+	ATTACH_SKILL: (workspaceId: string, agentId: string) =>
+		`/workspaces/${workspaceId}/agents/${agentId}/skills/attach`,
+	DETACH_SKILL: (workspaceId: string, agentId: string, skillId: string) =>
+		`/workspaces/${workspaceId}/agents/${agentId}/skills/${skillId}`,
+	CONVERSATIONS: (workspaceId: string, agentId: string) =>
+		`/workspaces/${workspaceId}/agents/${agentId}/conversations`,
+} as const;
+
+export const AgentSkillEndpoints = {
+	LIST: (workspaceId: string) => `/workspaces/${workspaceId}/agent-skills`,
+	CREATE: (workspaceId: string) => `/workspaces/${workspaceId}/agent-skills`,
+	UPDATE: (workspaceId: string, skillId: string) => `/workspaces/${workspaceId}/agent-skills/${skillId}`,
+	DELETE: (workspaceId: string, skillId: string) => `/workspaces/${workspaceId}/agent-skills/${skillId}`,
+} as const;
+
+export const WebhookEndpoints = {
+	LIST: (workspaceId: string) => `/workspaces/${workspaceId}/webhooks`,
+	CREATE: (workspaceId: string) => `/workspaces/${workspaceId}/webhooks`,
+	DETAIL: (workspaceId: string, webhookId: string) => `/workspaces/${workspaceId}/webhooks/${webhookId}`,
+	UPDATE: (workspaceId: string, webhookId: string) => `/workspaces/${workspaceId}/webhooks/${webhookId}`,
+	DELETE: (workspaceId: string, webhookId: string) => `/workspaces/${workspaceId}/webhooks/${webhookId}`,
+	ACTIVATE: (workspaceId: string, webhookId: string) =>
+		`/workspaces/${workspaceId}/webhooks/${webhookId}/activate`,
+	DEACTIVATE: (workspaceId: string, webhookId: string) =>
+		`/workspaces/${workspaceId}/webhooks/${webhookId}/deactivate`,
+	TEST: (workspaceId: string, webhookId: string) =>
+		`/workspaces/${workspaceId}/webhooks/${webhookId}/test`,
+	LOGS: (workspaceId: string, webhookId: string) =>
+		`/workspaces/${workspaceId}/webhooks/${webhookId}/logs`,
+	LOG_DETAIL: (workspaceId: string, webhookId: string, logId: string) =>
+		`/workspaces/${workspaceId}/webhooks/${webhookId}/logs/${logId}`,
+} as const;
+
+export const WorkflowEditorEndpoints = {
+	VERSIONS: (workspaceId: string, id: string) => `/workspaces/${workspaceId}/workflows/${id}/versions`,
+	VERSION: (workspaceId: string, id: string, version: number) =>
+		`/workspaces/${workspaceId}/workflows/${id}/versions/${version}`,
+	ROLLBACK: (workspaceId: string, id: string, version: number) =>
+		`/workspaces/${workspaceId}/workflows/${id}/versions/${version}/rollback`,
+	COMPARE_VERSIONS: (workspaceId: string, id: string) =>
+		`/workspaces/${workspaceId}/workflows/${id}/compare-versions`,
+	VALIDATE: (workspaceId: string) => `/workspaces/${workspaceId}/workflows/validate`,
+	TEST_NODE: (workspaceId: string) => `/workspaces/${workspaceId}/workflows/test-node`,
+	CLONE: (workspaceId: string, id: string) => `/workspaces/${workspaceId}/workflows/${id}/clone`,
+	PINNED_DATA: (workspaceId: string, id: string) =>
+		`/workspaces/${workspaceId}/workflows/${id}/pinned-data`,
+	PINNED_DATA_NODE: (workspaceId: string, id: string, nodeId: string) =>
+		`/workspaces/${workspaceId}/workflows/${id}/pinned-data/${nodeId}`,
+} as const;

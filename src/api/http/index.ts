@@ -13,4 +13,10 @@ export {
 	TemplateEndpoints,
 	OAuthEndpoints,
 	DashboardEndpoints,
+	NodeTypeEndpoints,
+	NoteEndpoints,
+	AgentEndpoints,
+	AgentSkillEndpoints,
+	WebhookEndpoints,
+	WorkflowEditorEndpoints,
 } from './endpoints';

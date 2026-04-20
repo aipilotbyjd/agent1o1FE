@@ -1,53 +1,93 @@
 import axiosClient from '../http/axios.config';
-import type { TAgent, TAgentSkill, TAgentConversation } from '../../types/agent.type';
+import { AgentEndpoints, AgentSkillEndpoints } from '../http/endpoints';
+import type { TApiResponse } from '@/types/api.type';
+import type { TAgent, TAgentSkill, TAgentConversation } from '@/types/agent.type';
 
-export const agentService = {
-	// Agents
-	list: (workspaceId: string) =>
-		axiosClient.get<{ data: TAgent[] }>(`/workspaces/${workspaceId}/agents`),
+export const AgentService = {
+	// ── Agents ───────────────────────────────────────────
+	list: async (workspaceId: string): Promise<TAgent[]> => {
+		const { data } = await axiosClient.get<TApiResponse<TAgent[]>>(
+			AgentEndpoints.LIST(workspaceId),
+		);
+		return data.data;
+	},
 
-	get: (workspaceId: string, agentId: string) =>
-		axiosClient.get<{ data: TAgent }>(`/workspaces/${workspaceId}/agents/${agentId}`),
+	detail: async (workspaceId: string, agentId: string): Promise<TAgent> => {
+		const { data } = await axiosClient.get<TApiResponse<TAgent>>(
+			AgentEndpoints.DETAIL(workspaceId, agentId),
+		);
+		return data.data;
+	},
 
-	create: (workspaceId: string, data: Partial<TAgent>) =>
-		axiosClient.post<{ data: TAgent }>(`/workspaces/${workspaceId}/agents`, data),
+	create: async (workspaceId: string, payload: Partial<TAgent>): Promise<TAgent> => {
+		const { data } = await axiosClient.post<TApiResponse<TAgent>>(
+			AgentEndpoints.CREATE(workspaceId),
+			payload,
+		);
+		return data.data;
+	},
 
-	update: (workspaceId: string, agentId: string, data: Partial<TAgent>) =>
-		axiosClient.put<{ data: TAgent }>(`/workspaces/${workspaceId}/agents/${agentId}`, data),
+	update: async (workspaceId: string, agentId: string, payload: Partial<TAgent>): Promise<TAgent> => {
+		const { data } = await axiosClient.put<TApiResponse<TAgent>>(
+			AgentEndpoints.UPDATE(workspaceId, agentId),
+			payload,
+		);
+		return data.data;
+	},
 
-	delete: (workspaceId: string, agentId: string) =>
-		axiosClient.delete(`/workspaces/${workspaceId}/agents/${agentId}`),
+	delete: async (workspaceId: string, agentId: string): Promise<void> => {
+		await axiosClient.delete(AgentEndpoints.DELETE(workspaceId, agentId));
+	},
 
-	duplicate: (workspaceId: string, agentId: string) =>
-		axiosClient.post<{ data: TAgent }>(`/workspaces/${workspaceId}/agents/${agentId}/duplicate`),
+	duplicate: async (workspaceId: string, agentId: string): Promise<TAgent> => {
+		const { data } = await axiosClient.post<TApiResponse<TAgent>>(
+			AgentEndpoints.DUPLICATE(workspaceId, agentId),
+		);
+		return data.data;
+	},
 
-	// Skills
-	listSkills: (workspaceId: string) =>
-		axiosClient.get<{ data: TAgentSkill[] }>(`/workspaces/${workspaceId}/agent-skills`),
-
-	createSkill: (workspaceId: string, data: Partial<TAgentSkill>) =>
-		axiosClient.post<{ data: TAgentSkill }>(`/workspaces/${workspaceId}/agent-skills`, data),
-
-	updateSkill: (workspaceId: string, skillId: string, data: Partial<TAgentSkill>) =>
-		axiosClient.put<{ data: TAgentSkill }>(
-			`/workspaces/${workspaceId}/agent-skills/${skillId}`,
-			data,
-		),
-
-	deleteSkill: (workspaceId: string, skillId: string) =>
-		axiosClient.delete(`/workspaces/${workspaceId}/agent-skills/${skillId}`),
-
-	attachSkill: (workspaceId: string, agentId: string, skillId: string) =>
-		axiosClient.post(`/workspaces/${workspaceId}/agents/${agentId}/skills/attach`, {
+	attachSkill: async (workspaceId: string, agentId: string, skillId: string): Promise<void> => {
+		await axiosClient.post(AgentEndpoints.ATTACH_SKILL(workspaceId, agentId), {
 			skill_id: skillId,
-		}),
+		});
+	},
 
-	detachSkill: (workspaceId: string, agentId: string, skillId: string) =>
-		axiosClient.delete(`/workspaces/${workspaceId}/agents/${agentId}/skills/${skillId}`),
+	detachSkill: async (workspaceId: string, agentId: string, skillId: string): Promise<void> => {
+		await axiosClient.delete(AgentEndpoints.DETACH_SKILL(workspaceId, agentId, skillId));
+	},
 
-	// Conversations
-	listConversations: (workspaceId: string, agentId: string) =>
-		axiosClient.get<{ data: TAgentConversation[] }>(
-			`/workspaces/${workspaceId}/agents/${agentId}/conversations`,
-		),
+	listConversations: async (workspaceId: string, agentId: string): Promise<TAgentConversation[]> => {
+		const { data } = await axiosClient.get<TApiResponse<TAgentConversation[]>>(
+			AgentEndpoints.CONVERSATIONS(workspaceId, agentId),
+		);
+		return data.data;
+	},
+
+	// ── Skills ───────────────────────────────────────────
+	listSkills: async (workspaceId: string): Promise<TAgentSkill[]> => {
+		const { data } = await axiosClient.get<TApiResponse<TAgentSkill[]>>(
+			AgentSkillEndpoints.LIST(workspaceId),
+		);
+		return data.data;
+	},
+
+	createSkill: async (workspaceId: string, payload: Partial<TAgentSkill>): Promise<TAgentSkill> => {
+		const { data } = await axiosClient.post<TApiResponse<TAgentSkill>>(
+			AgentSkillEndpoints.CREATE(workspaceId),
+			payload,
+		);
+		return data.data;
+	},
+
+	updateSkill: async (workspaceId: string, skillId: string, payload: Partial<TAgentSkill>): Promise<TAgentSkill> => {
+		const { data } = await axiosClient.put<TApiResponse<TAgentSkill>>(
+			AgentSkillEndpoints.UPDATE(workspaceId, skillId),
+			payload,
+		);
+		return data.data;
+	},
+
+	deleteSkill: async (workspaceId: string, skillId: string): Promise<void> => {
+		await axiosClient.delete(AgentSkillEndpoints.DELETE(workspaceId, skillId));
+	},
 };

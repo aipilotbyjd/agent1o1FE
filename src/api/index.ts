@@ -11,6 +11,9 @@ export {
 	TemplateEndpoints,
 	OAuthEndpoints,
 	DashboardEndpoints,
+	NodeTypeEndpoints,
+	NoteEndpoints,
+	WorkflowEditorEndpoints,
 } from './http';
 
 // ─── Services ────────────────────────────────────────────────
@@ -23,6 +26,9 @@ export { CredentialService } from './services';
 export { VariableService } from './services';
 export { TemplateService } from './services';
 export { DashboardService } from './services';
+export { NodeTypeService } from './services';
+export { NoteService } from './services';
+export { WorkflowEditorService } from './services';
 
 // ─── Auth Hooks ──────────────────────────────────────────────
 export {
@@ -113,6 +119,47 @@ export {
 export {
 	useFetchDashboard,
 	useFetchQuickStats,
+} from './hooks';
+
+// ─── Node Type Hooks ─────────────────────────────────
+export {
+	useNodeTypes,
+	useNodeCategories,
+	useNodeType,
+} from './hooks';
+
+// ─── Note Hooks ──────────────────────────────────────
+export {
+	useNotes,
+	useNote,
+	useCreateNote,
+	useUpdateNote,
+	useDeleteNote,
+} from './hooks';
+
+// ─── Workflow Editor Hooks ───────────────────────────
+export {
+	useEditorWorkflows,
+	useEditorWorkflow,
+	useEditorCreateWorkflow,
+	useEditorUpdateWorkflow,
+	useEditorDeleteWorkflow,
+	useEditorExecuteWorkflow,
+	useEditorActivateWorkflow,
+	useEditorDeactivateWorkflow,
+	useEditorDuplicateWorkflow,
+	useEditorToggleFavorite,
+	useCloneWorkflow,
+	useEditorExportWorkflow,
+	useEditorImportWorkflow,
+	useValidateWorkflow,
+	useTestNode,
+	useWorkflowVersions,
+	useRollbackWorkflowVersion,
+	useCompareWorkflowVersions,
+	usePinnedData,
+	useSetPinnedData,
+	useDeletePinnedData,
 } from './hooks';
 
 // ─── Utils ───────────────────────────────────────────────────

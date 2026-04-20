@@ -152,3 +152,110 @@ export interface IMoveWorkflowsDto {
 	folder_id: string | null;
 	workflow_ids: string[];
 }
+
+// ─── WorkflowEditor Extended Types ───────────────────────────
+
+// Workflow version snapshot
+export interface IWorkflowVersion {
+	id: string;
+	workflow_id: string;
+	version: number;
+	nodes: IWorkflowNode[];
+	connections: IWorkflowConnection[];
+	settings?: IWorkflowSettings;
+	created_by: string;
+	change_message?: string;
+	created_at: number;
+}
+
+export interface IWorkflowVersionComparisonSummary {
+	nodesAdded: number;
+	nodesRemoved: number;
+	nodesModified: number;
+	connectionsAdded: number;
+	connectionsRemoved: number;
+	settingsChanged: boolean;
+}
+
+export interface IWorkflowVersionDifference {
+	type: 'added' | 'removed' | 'modified';
+	path: string;
+	oldValue?: unknown;
+	newValue?: unknown;
+	description?: string;
+}
+
+export interface IWorkflowVersionComparison {
+	summary: IWorkflowVersionComparisonSummary;
+	differences: IWorkflowVersionDifference[];
+}
+
+// Workflow export/import (linkflow format)
+export interface IWorkflowExport {
+	version: string;
+	exportedAt: number;
+	workflow: {
+		name: string;
+		description?: string;
+		nodes: IWorkflowNode[];
+		connections: IWorkflowConnection[];
+		settings?: IWorkflowSettings;
+		tags?: string[];
+	};
+}
+
+export interface IWorkflowImport {
+	version: string;
+	workflow: {
+		name: string;
+		description?: string;
+		nodes: IWorkflowNode[];
+		connections: IWorkflowConnection[];
+		settings?: IWorkflowSettings;
+		tags?: string[];
+	};
+}
+
+// Pinned test data per node
+export interface IWorkflowPinnedDataItem {
+	json: Record<string, unknown>;
+}
+
+export interface IWorkflowPinnedData {
+	node_id: string;
+	data: IWorkflowPinnedDataItem[];
+}
+
+export interface ISetPinnedDataDto {
+	node_id: string;
+	data: IWorkflowPinnedDataItem[];
+}
+
+// Workflow validation
+export interface IWorkflowValidationResult {
+	valid: boolean;
+	errors: Array<{
+		type: 'error' | 'warning';
+		node?: string;
+		message: string;
+	}>;
+}
+
+// Test a single node
+export interface ITestNodeDto {
+	node_type: string;
+	parameters: Record<string, unknown>;
+	input?: Record<string, unknown>;
+}
+
+export interface ITestNodeResult {
+	success: boolean;
+	output?: Record<string, unknown>;
+	error?: string;
+	duration: number;
+}
+
+// Clone workflow (requires explicit name)
+export interface ICloneWorkflowDto {
+	name: string;
+}

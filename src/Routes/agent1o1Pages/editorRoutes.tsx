@@ -1,8 +1,8 @@
 import pages from '@/Routes/pages';
 import { lazy } from 'react';
 
-const WorkflowEditorPage = lazy(() => import('@/pages/UnderConstruction.page'));
-const StoryBuilderPage = lazy(() => import('@/pages/UnderConstruction.page'));
+const WorkflowEditorPage = lazy(() => import('@/pages/editor/WorkflowEditor/WorkflowEditor.page'));
+const StoryBuilderPage = lazy(() => import('@/pages/editor/WorkflowEditor/WorkflowEditor.page'));
 
 const EditorRoutes = [
 	{

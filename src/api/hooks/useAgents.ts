@@ -1,141 +1,144 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { agentService } from '../services/agent.service';
-import type { TAgent } from '../../types/agent.type';
-import type { TAgentSkill } from '@/types/agent.type';
+import { toast } from 'react-toastify';
+import { AgentService } from '../services/agent.service';
+import { queryKeys } from '../utils/query.helper';
+import type { TAgent, TAgentSkill } from '@/types/agent.type';
 
-export const useFetchAgents = (workspaceId: string) => {
-	return useQuery({
-		queryKey: ['agents', workspaceId],
-		queryFn: () => agentService.list(workspaceId),
+// ── Agents ───────────────────────────────────────────────
+
+export const useFetchAgents = (workspaceId: string) =>
+	useQuery({
+		queryKey: queryKeys.agents.all(workspaceId),
+		queryFn: () => AgentService.list(workspaceId),
 		enabled: !!workspaceId,
 	});
-};
 
-export const useFetchAgent = (workspaceId: string, agentId: string) => {
-	return useQuery({
-		queryKey: ['agents', workspaceId, agentId],
-		queryFn: () => agentService.get(workspaceId, agentId),
+export const useFetchAgent = (workspaceId: string, agentId: string) =>
+	useQuery({
+		queryKey: queryKeys.agents.detail(workspaceId, agentId),
+		queryFn: () => AgentService.detail(workspaceId, agentId),
 		enabled: !!workspaceId && !!agentId,
 	});
-};
 
 export const useCreateAgent = (workspaceId: string) => {
-	const queryClient = useQueryClient();
-
+	const qc = useQueryClient();
 	return useMutation({
-		mutationFn: (data: Partial<TAgent>) => agentService.create(workspaceId, data),
+		mutationFn: (data: Partial<TAgent>) => AgentService.create(workspaceId, data),
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['agents', workspaceId] });
+			qc.invalidateQueries({ queryKey: queryKeys.agents.all(workspaceId) });
+			toast.success('Agent created!');
 		},
+		onError: () => toast.error('Failed to create agent'),
 	});
 };
 
 export const useUpdateAgent = (workspaceId: string) => {
-	const queryClient = useQueryClient();
-
+	const qc = useQueryClient();
 	return useMutation({
 		mutationFn: ({ id, data }: { id: string; data: Partial<TAgent> }) =>
-			agentService.update(workspaceId, id, data),
+			AgentService.update(workspaceId, id, data),
 		onSuccess: (_, variables) => {
-			queryClient.invalidateQueries({ queryKey: ['agents', workspaceId] });
-			queryClient.invalidateQueries({ queryKey: ['agents', workspaceId, variables.id] });
+			qc.invalidateQueries({ queryKey: queryKeys.agents.all(workspaceId) });
+			qc.invalidateQueries({ queryKey: queryKeys.agents.detail(workspaceId, variables.id) });
 		},
+		onError: () => toast.error('Failed to update agent'),
 	});
 };
 
 export const useDeleteAgent = (workspaceId: string) => {
-	const queryClient = useQueryClient();
-
+	const qc = useQueryClient();
 	return useMutation({
-		mutationFn: (id: string) => agentService.delete(workspaceId, id),
+		mutationFn: (id: string) => AgentService.delete(workspaceId, id),
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['agents', workspaceId] });
+			qc.invalidateQueries({ queryKey: queryKeys.agents.all(workspaceId) });
+			toast.success('Agent deleted!');
 		},
+		onError: () => toast.error('Failed to delete agent'),
 	});
 };
 
 export const useDuplicateAgent = (workspaceId: string) => {
-	const queryClient = useQueryClient();
-
+	const qc = useQueryClient();
 	return useMutation({
-		mutationFn: (id: string) => agentService.duplicate(workspaceId, id),
+		mutationFn: (id: string) => AgentService.duplicate(workspaceId, id),
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['agents', workspaceId] });
+			qc.invalidateQueries({ queryKey: queryKeys.agents.all(workspaceId) });
+			toast.success('Agent duplicated!');
 		},
+		onError: () => toast.error('Failed to duplicate agent'),
 	});
 };
 
-export const useFetchAgentSkills = (workspaceId: string) => {
-	return useQuery({
-		queryKey: ['agent-skills', workspaceId],
-		queryFn: () => agentService.listSkills(workspaceId),
+// ── Agent Skills ─────────────────────────────────────────
+
+export const useFetchAgentSkills = (workspaceId: string) =>
+	useQuery({
+		queryKey: queryKeys.agentSkills.all(workspaceId),
+		queryFn: () => AgentService.listSkills(workspaceId),
 		enabled: !!workspaceId,
 	});
-};
 
 export const useCreateAgentSkill = (workspaceId: string) => {
-	const queryClient = useQueryClient();
-
+	const qc = useQueryClient();
 	return useMutation({
-		mutationFn: (data: Partial<TAgentSkill>) => agentService.createSkill(workspaceId, data),
+		mutationFn: (data: Partial<TAgentSkill>) => AgentService.createSkill(workspaceId, data),
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['agent-skills', workspaceId] });
+			qc.invalidateQueries({ queryKey: queryKeys.agentSkills.all(workspaceId) });
+			toast.success('Skill created!');
 		},
+		onError: () => toast.error('Failed to create skill'),
 	});
 };
 
 export const useUpdateAgentSkill = (workspaceId: string) => {
-	const queryClient = useQueryClient();
-
+	const qc = useQueryClient();
 	return useMutation({
 		mutationFn: ({ id, data }: { id: string; data: Partial<TAgentSkill> }) =>
-			agentService.updateSkill(workspaceId, id, data),
+			AgentService.updateSkill(workspaceId, id, data),
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['agent-skills', workspaceId] });
-			queryClient.invalidateQueries({ queryKey: ['agents', workspaceId] });
+			qc.invalidateQueries({ queryKey: queryKeys.agentSkills.all(workspaceId) });
+			qc.invalidateQueries({ queryKey: queryKeys.agents.all(workspaceId) });
 		},
+		onError: () => toast.error('Failed to update skill'),
 	});
 };
 
 export const useDeleteAgentSkill = (workspaceId: string) => {
-	const queryClient = useQueryClient();
-
+	const qc = useQueryClient();
 	return useMutation({
-		mutationFn: (id: string) => agentService.deleteSkill(workspaceId, id),
+		mutationFn: (id: string) => AgentService.deleteSkill(workspaceId, id),
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['agent-skills', workspaceId] });
+			qc.invalidateQueries({ queryKey: queryKeys.agentSkills.all(workspaceId) });
+			toast.success('Skill deleted!');
 		},
+		onError: () => toast.error('Failed to delete skill'),
 	});
 };
 
 export const useAttachAgentSkill = (workspaceId: string) => {
-	const queryClient = useQueryClient();
-
+	const qc = useQueryClient();
 	return useMutation({
 		mutationFn: ({ agentId, skillId }: { agentId: string; skillId: string }) =>
-			agentService.attachSkill(workspaceId, agentId, skillId),
+			AgentService.attachSkill(workspaceId, agentId, skillId),
 		onSuccess: (_, variables) => {
-			queryClient.invalidateQueries({ queryKey: ['agents', workspaceId] });
-			queryClient.invalidateQueries({
-				queryKey: ['agents', workspaceId, variables.agentId],
-			});
-			queryClient.invalidateQueries({ queryKey: ['agent-skills', workspaceId] });
+			qc.invalidateQueries({ queryKey: queryKeys.agents.all(workspaceId) });
+			qc.invalidateQueries({ queryKey: queryKeys.agents.detail(workspaceId, variables.agentId) });
+			qc.invalidateQueries({ queryKey: queryKeys.agentSkills.all(workspaceId) });
 		},
+		onError: () => toast.error('Failed to attach skill'),
 	});
 };
 
 export const useDetachAgentSkill = (workspaceId: string) => {
-	const queryClient = useQueryClient();
-
+	const qc = useQueryClient();
 	return useMutation({
 		mutationFn: ({ agentId, skillId }: { agentId: string; skillId: string }) =>
-			agentService.detachSkill(workspaceId, agentId, skillId),
+			AgentService.detachSkill(workspaceId, agentId, skillId),
 		onSuccess: (_, variables) => {
-			queryClient.invalidateQueries({ queryKey: ['agents', workspaceId] });
-			queryClient.invalidateQueries({
-				queryKey: ['agents', workspaceId, variables.agentId],
-			});
-			queryClient.invalidateQueries({ queryKey: ['agent-skills', workspaceId] });
+			qc.invalidateQueries({ queryKey: queryKeys.agents.all(workspaceId) });
+			qc.invalidateQueries({ queryKey: queryKeys.agents.detail(workspaceId, variables.agentId) });
+			qc.invalidateQueries({ queryKey: queryKeys.agentSkills.all(workspaceId) });
 		},
+		onError: () => toast.error('Failed to detach skill'),
 	});
 };

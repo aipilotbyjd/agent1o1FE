@@ -15,7 +15,7 @@ export const useFetchWorkflows = (workspaceId: string, params?: TListParams) =>
 
 export const useFetchWorkflowById = (workspaceId: string, id: string) =>
 	useQuery({
-		queryKey: queryKeys.workflows.detail(id),
+		queryKey: queryKeys.workflows.detail(workspaceId, id),
 		queryFn: () => WorkflowService.fetchById(workspaceId, id),
 		enabled: !!workspaceId && !!id,
 	});
@@ -25,7 +25,7 @@ export const useCreateWorkflow = (workspaceId: string) => {
 	return useMutation({
 		mutationFn: (data: TCreateWorkflowDto) => WorkflowService.create(workspaceId, data),
 		onSuccess: (data) => {
-			queryClient.invalidateQueries({ queryKey: queryKeys.workflows.all() });
+			queryClient.invalidateQueries({ queryKey: queryKeys.workflows.all(workspaceId) });
 			toast.success(`Workflow "${data.name}" created!`);
 		},
 		onError: () => {
@@ -40,7 +40,7 @@ export const useUpdateWorkflow = (workspaceId: string) => {
 		mutationFn: ({ id, data }: { id: string; data: TUpdateWorkflowDto }) =>
 			WorkflowService.update(workspaceId, id, data),
 		onSuccess: (data) => {
-			queryClient.invalidateQueries({ queryKey: queryKeys.workflows.all() });
+			queryClient.invalidateQueries({ queryKey: queryKeys.workflows.all(workspaceId) });
 			toast.success(`Workflow "${data.name}" updated!`);
 		},
 		onError: () => {
@@ -54,7 +54,7 @@ export const useDeleteWorkflow = (workspaceId: string) => {
 	return useMutation({
 		mutationFn: (id: string) => WorkflowService.delete(workspaceId, id),
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: queryKeys.workflows.all() });
+			queryClient.invalidateQueries({ queryKey: queryKeys.workflows.all(workspaceId) });
 			toast.success('Workflow deleted!');
 		},
 		onError: () => {
@@ -68,7 +68,7 @@ export const useExecuteWorkflow = (workspaceId: string) => {
 	return useMutation({
 		mutationFn: (id: string) => WorkflowService.execute(workspaceId, id),
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: queryKeys.workflows.all() });
+			queryClient.invalidateQueries({ queryKey: queryKeys.workflows.all(workspaceId) });
 			toast.success('Workflow execution started!');
 		},
 		onError: () => {
@@ -82,7 +82,7 @@ export const useActivateWorkflow = (workspaceId: string) => {
 	return useMutation({
 		mutationFn: (id: string) => WorkflowService.activate(workspaceId, id),
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: queryKeys.workflows.all() });
+			queryClient.invalidateQueries({ queryKey: queryKeys.workflows.all(workspaceId) });
 			toast.success('Workflow activated!');
 		},
 		onError: () => {
@@ -96,7 +96,7 @@ export const useDeactivateWorkflow = (workspaceId: string) => {
 	return useMutation({
 		mutationFn: (id: string) => WorkflowService.deactivate(workspaceId, id),
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: queryKeys.workflows.all() });
+			queryClient.invalidateQueries({ queryKey: queryKeys.workflows.all(workspaceId) });
 			toast.success('Workflow deactivated!');
 		},
 		onError: () => {
@@ -110,7 +110,7 @@ export const useDuplicateWorkflow = (workspaceId: string) => {
 	return useMutation({
 		mutationFn: (id: string) => WorkflowService.duplicate(workspaceId, id),
 		onSuccess: (data) => {
-			queryClient.invalidateQueries({ queryKey: queryKeys.workflows.all() });
+			queryClient.invalidateQueries({ queryKey: queryKeys.workflows.all(workspaceId) });
 			toast.success(`Workflow duplicated as "${data.name}"!`);
 		},
 		onError: () => {
@@ -125,7 +125,7 @@ export const useToggleFavorite = (workspaceId: string) => {
 		mutationFn: ({ id, is_favorite }: { id: string; is_favorite: boolean }) =>
 			WorkflowService.update(workspaceId, id, { is_favorite }),
 		onSuccess: (data) => {
-			queryClient.invalidateQueries({ queryKey: queryKeys.workflows.all() });
+			queryClient.invalidateQueries({ queryKey: queryKeys.workflows.all(workspaceId) });
 			toast.success(
 				data.is_favorite
 					? `"${data.name}" added to favorites!`
