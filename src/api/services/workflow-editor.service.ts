@@ -171,7 +171,7 @@ export const WorkflowEditorService = {
 	): Promise<IWorkflowVersionComparison> => {
 		const { data } = await axiosClient.get<TApiResponse<IWorkflowVersionComparison>>(
 			WorkflowEditorEndpoints.COMPARE_VERSIONS(workspaceId, id),
-			{ params: { v1, v2 } },
+			{ params: { from: v1, to: v2 } },
 		);
 		return data.data;
 	},

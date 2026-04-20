@@ -156,9 +156,9 @@ export const DashboardEndpoints = {
 } as const;
 
 export const NodeTypeEndpoints = {
-	LIST: '/node-types',
-	CATEGORIES: '/node-types/categories',
-	DETAIL: (nodeType: string) => `/node-types/${nodeType}`,
+	LIST: '/nodes',
+	CATEGORIES: '/node-categories',
+	DETAIL: (nodeType: string) => `/nodes/${nodeType}`,
 } as const;
 
 export const NoteEndpoints = {
@@ -216,7 +216,7 @@ export const WorkflowEditorEndpoints = {
 	ROLLBACK: (workspaceId: string, id: string, version: number) =>
 		`/workspaces/${workspaceId}/workflows/${id}/versions/${version}/rollback`,
 	COMPARE_VERSIONS: (workspaceId: string, id: string) =>
-		`/workspaces/${workspaceId}/workflows/${id}/compare-versions`,
+		`/workspaces/${workspaceId}/workflows/${id}/versions/diff`,
 	VALIDATE: (workspaceId: string) => `/workspaces/${workspaceId}/workflows/validate`,
 	TEST_NODE: (workspaceId: string) => `/workspaces/${workspaceId}/workflows/test-node`,
 	CLONE: (workspaceId: string, id: string) => `/workspaces/${workspaceId}/workflows/${id}/clone`,
